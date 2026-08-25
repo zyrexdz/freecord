@@ -1,0 +1,94 @@
+<div class="rounded-2xl bg-[#1e1f22] border border-indigo-500/30 p-4 shadow-2xl space-y-3 font-sans text-xs">
+    <div class="flex items-center justify-between border-b border-white/10 pb-2.5">
+        <div class="flex items-center gap-2">
+            <span class="w-6 h-6 rounded-lg bg-indigo-500/20 text-indigo-400 flex items-center justify-center font-bold text-xs">
+                <i data-lucide="shield-check" class="w-3.5 h-3.5"></i>
+            </span>
+            <div>
+                <h4 class="font-bold text-white text-xs sm:text-sm">Discord Role Hierarchy Rule</h4>
+                <p class="text-[11px] text-slate-400">Your Bot role must be higher than the @Verified role</p>
+            </div>
+        </div>
+        <span class="px-2 py-0.5 rounded-full text-[9px] font-extrabold bg-emerald-500/20 text-emerald-300 border border-emerald-500/30 shrink-0">
+            Crucial Step
+        </span>
+    </div>
+
+    <div class="p-3.5 rounded-xl bg-[#2b2d31] border border-slate-700/80 space-y-2 relative overflow-hidden">
+        <div class="flex items-center justify-between text-[10px] text-slate-400 uppercase tracking-wider font-bold">
+            <span>Discord Server Settings &rarr; Roles</span>
+            <span class="text-indigo-400 flex items-center gap-1">
+                <i data-lucide="move" class="w-3 h-3 animate-pulse"></i>
+                <span>Drag to reorder</span>
+            </span>
+        </div>
+
+        <div class="space-y-1.5 relative pt-1">
+            <div class="p-2 rounded-lg bg-[#1e1f22] border border-slate-700/60 flex items-center justify-between opacity-60">
+                <div class="flex items-center gap-2">
+                    <span class="w-2.5 h-2.5 rounded-full bg-amber-400"></span>
+                    <span class="font-semibold text-slate-300 text-xs">👑 Server Owner / Admin</span>
+                </div>
+                <span class="text-[10px] text-slate-500">Highest</span>
+            </div>
+
+            <div class="p-2 rounded-lg bg-[#111214] border-2 border-emerald-500/80 flex items-center justify-between shadow-lg relative z-10 animate-bot-role-drag">
+                <div class="flex items-center gap-2">
+                    <span class="w-2.5 h-2.5 rounded-full bg-sky-400"></span>
+                    <span class="font-bold text-white text-xs flex items-center gap-1.5">
+                        <i data-lucide="bot" class="w-3.5 h-3.5 text-sky-400"></i>
+                        <span>🤖 Your Bot Role</span>
+                    </span>
+                </div>
+                <div class="flex items-center gap-1.5">
+                    <span class="px-2 py-0.5 rounded bg-emerald-500/20 text-emerald-300 font-extrabold text-[9px] border border-emerald-500/40 flex items-center gap-1">
+                        <i data-lucide="check-circle" class="w-3 h-3"></i>
+                        <span>MUST BE ABOVE</span>
+                    </span>
+                </div>
+            </div>
+
+            <div class="p-2 rounded-lg bg-[#1e1f22] border border-indigo-500/40 flex items-center justify-between shadow-md animate-verified-role-push">
+                <div class="flex items-center gap-2">
+                    <span class="w-2.5 h-2.5 rounded-full bg-indigo-500"></span>
+                    <span class="font-semibold text-indigo-200 text-xs">🛡️ @Verified Role</span>
+                </div>
+                <span class="px-1.5 py-0.5 rounded bg-indigo-500/20 text-indigo-300 text-[9px] font-medium">
+                    Assigned to users
+                </span>
+            </div>
+
+            <div class="p-2 rounded-lg bg-[#1e1f22] border border-slate-800 flex items-center justify-between opacity-50">
+                <div class="flex items-center gap-2">
+                    <span class="w-2.5 h-2.5 rounded-full bg-slate-500"></span>
+                    <span class="text-slate-400 text-xs">@everyone</span>
+                </div>
+                <span class="text-[10px] text-slate-500">Lowest</span>
+            </div>
+        </div>
+    </div>
+
+    <div class="p-3 rounded-xl bg-slate-950/80 border border-white/5 space-y-1.5 text-xs">
+        <p class="font-bold text-white text-[11px] uppercase tracking-wider flex items-center gap-1.5 text-amber-300">
+            <i data-lucide="alert-triangle" class="w-3.5 h-3.5 text-amber-400"></i>
+            <span>Why this is required:</span>
+        </p>
+        <p class="text-slate-300 text-[11px] leading-relaxed">
+            Discord security does not let any bot give a role that sits higher than itself. If your Bot role is below <span class="text-indigo-300 font-semibold">@Verified</span>, Discord will block role assignment with a permission error.
+        </p>
+        <div class="pt-1.5 border-t border-white/5 grid grid-cols-1 sm:grid-cols-3 gap-2 text-[11px]">
+            <div class="p-2 rounded-lg bg-slate-900 border border-white/5">
+                <span class="font-bold text-indigo-400">Step 1:</span>
+                <p class="text-slate-400 mt-0.5">Open Discord Server Settings &rarr; Roles</p>
+            </div>
+            <div class="p-2 rounded-lg bg-slate-900 border border-white/5">
+                <span class="font-bold text-emerald-400">Step 2:</span>
+                <p class="text-slate-400 mt-0.5">Drag your Bot's role above @Verified</p>
+            </div>
+            <div class="p-2 rounded-lg bg-slate-900 border border-white/5">
+                <span class="font-bold text-sky-400">Step 3:</span>
+                <p class="text-slate-400 mt-0.5">Click Save Changes in Discord!</p>
+            </div>
+        </div>
+    </div>
+</div>

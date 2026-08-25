@@ -1,0 +1,150 @@
+<!DOCTYPE html>
+<html lang="en" class="dark">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>FreeCord Sign In</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://unpkg.com/lucide@latest"></script>
+    <link rel="stylesheet" href="/static/css/custom.css">
+</head>
+<body class="bg-[#07090e] text-slate-100 min-h-screen flex items-center justify-center p-4 selection:bg-[#5865F2]">
+
+    <div class="w-full max-w-[420px] relative">
+        <div class="absolute -top-20 left-1/2 -translate-x-1/2 w-64 h-64 bg-indigo-500/15 rounded-full blur-3xl pointer-events-none"></div>
+
+        <div class="text-center mb-6 relative">
+            <h1 class="text-2xl font-bold tracking-tight text-white">FreeCord</h1>
+            <p class="text-xs text-slate-400 mt-1">Sign in to your account</p>
+        </div>
+
+        <div class="glass-panel rounded-3xl p-6 sm:p-7 shadow-2xl border border-white/10 backdrop-blur-2xl relative">
+            
+            {% if error %}
+            <div class="mb-5 p-3 rounded-2xl bg-rose-500/10 border border-rose-500/30 flex items-center gap-2.5 text-rose-400 text-xs font-medium">
+                <i data-lucide="alert-circle" class="w-4 h-4 shrink-0"></i>
+                <span>{{ error }}</span>
+            </div>
+            {% endif %}
+
+            <div class="flex p-1 bg-slate-900/80 rounded-2xl border border-white/5 mb-5 text-xs font-medium">
+                <button type="button" id="tab-btn-login" onclick="switchAuthTab('login')"
+                    class="flex-1 py-1.5 rounded-xl transition-all duration-200 {% if tab != 'register' %}bg-white/10 text-white font-semibold shadow-sm{% else %}text-slate-400 hover:text-slate-200{% endif %}">
+                    Sign In
+                </button>
+                <button type="button" id="tab-btn-register" onclick="switchAuthTab('register')"
+                    class="flex-1 py-1.5 rounded-xl transition-all duration-200 {% if tab == 'register' %}bg-white/10 text-white font-semibold shadow-sm{% else %}text-slate-400 hover:text-slate-200{% endif %}">
+                    Create Account
+                </button>
+            </div>
+
+            <form id="form-login" action="/login" method="POST" class="space-y-3.5 {% if tab == 'register' %}hidden{% endif %}">
+                <div>
+                    <label class="block text-xs font-medium text-slate-300 mb-1">Username</label>
+                    <input type="text" name="username" required autofocus placeholder="admin"
+                        class="w-full px-3.5 py-2.5 bg-slate-900/90 border border-white/10 rounded-2xl text-xs text-slate-100 placeholder-slate-500 focus:outline-none focus:border-[#5865F2] focus:ring-1 focus:ring-[#5865F2] transition-colors">
+                </div>
+
+                <div>
+                    <label class="block text-xs font-medium text-slate-300 mb-1">Password</label>
+                    <input type="password" name="password" required placeholder="••••••••"
+                        class="w-full px-3.5 py-2.5 bg-slate-900/90 border border-white/10 rounded-2xl text-xs text-slate-100 placeholder-slate-500 focus:outline-none focus:border-[#5865F2] focus:ring-1 focus:ring-[#5865F2] transition-colors">
+                </div>
+
+                <div class="pt-2">
+                    <button type="submit"
+                        class="w-full py-2.5 px-4 bg-slate-800 hover:bg-slate-700 border border-white/10 text-white font-semibold text-xs rounded-2xl shadow-lg shadow-black/20 transition-all transform active:scale-98 flex items-center justify-center gap-2">
+                        <span>Sign In</span>
+                        <i data-lucide="arrow-right" class="w-3.5 h-3.5"></i>
+                    </button>
+                </div>
+            </form>
+
+            <form id="form-register" action="/register" method="POST" class="space-y-3.5 {% if tab != 'register' %}hidden{% endif %}">
+                <div>
+                    <label class="block text-xs font-medium text-slate-300 mb-1">Choose Username</label>
+                    <input type="text" name="username" required placeholder="your_name"
+                        class="w-full px-3.5 py-2.5 bg-slate-900/90 border border-white/10 rounded-2xl text-xs text-slate-100 placeholder-slate-500 focus:outline-none focus:border-[#5865F2] focus:ring-1 focus:ring-[#5865F2] transition-colors">
+                </div>
+
+                <div>
+                    <label class="block text-xs font-medium text-slate-300 mb-1">Password</label>
+                    <input type="password" name="password" required placeholder="Minimum 6 characters"
+                        class="w-full px-3.5 py-2.5 bg-slate-900/90 border border-white/10 rounded-2xl text-xs text-slate-100 placeholder-slate-500 focus:outline-none focus:border-[#5865F2] focus:ring-1 focus:ring-[#5865F2] transition-colors">
+                </div>
+
+                <div>
+                    <label class="block text-xs font-medium text-slate-300 mb-1">Confirm Password</label>
+                    <input type="password" name="confirm_password" required placeholder="Repeat password"
+                        class="w-full px-3.5 py-2.5 bg-slate-900/90 border border-white/10 rounded-2xl text-xs text-slate-100 placeholder-slate-500 focus:outline-none focus:border-[#5865F2] focus:ring-1 focus:ring-[#5865F2] transition-colors">
+                </div>
+
+                <div class="pt-2">
+                    <button type="submit"
+                        class="w-full py-2.5 px-4 bg-emerald-600 hover:bg-emerald-500 text-white font-semibold text-xs rounded-2xl shadow-lg shadow-emerald-600/25 transition-all transform active:scale-98 flex items-center justify-center gap-2">
+                        <span>Create Account</span>
+                        <i data-lucide="check" class="w-3.5 h-3.5"></i>
+                    </button>
+                </div>
+            </form>
+
+            {% if discord_login_enabled %}
+            <div class="my-4 flex items-center gap-3">
+                <div class="h-px flex-1 bg-white/10"></div>
+                <span class="text-[11px] font-semibold text-slate-500 uppercase tracking-wider">or</span>
+                <div class="h-px flex-1 bg-white/10"></div>
+            </div>
+
+            <a href="/auth/discord/login"
+                class="w-full py-2.5 px-4 bg-[#5865F2] hover:bg-[#4752C4] text-white font-semibold text-xs rounded-2xl shadow-lg shadow-[#5865F2]/25 transition-all transform active:scale-98 flex items-center justify-center gap-2.5">
+                <svg class="w-4 h-4 fill-current" viewBox="0 0 127.14 96.36">
+                    <path d="M107.7,8.07A105.15,105.15,0,0,0,81.47,0a72.06,72.06,0,0,0-3.36,6.83A97.68,97.68,0,0,0,49,6.83,72.37,72.37,0,0,0,45.64,0,105.89,105.89,0,0,0,19.39,8.09C2.79,32.65-1.71,56.6.54,80.21h0A105.73,105.73,0,0,0,32.71,96.36,77.7,77.7,0,0,0,39.6,85.25a68.42,68.42,0,0,1-10.85-5.18c.91-.66,1.8-1.34,2.66-2a75.57,75.57,0,0,0,64.32,0c.87.71,1.76,1.39,2.66,2a68.68,68.68,0,0,1-10.87,5.19,77,77,0,0,0,6.89,11.1A105.25,105.25,0,0,0,126.6,80.22h0C129.24,52.84,122.09,29.11,107.7,8.07ZM42.45,65.69C36.18,65.69,31,60,31,53s5-12.74,11.43-12.74S54,45.91,53.89,53,48.84,65.69,42.45,65.69Zm42.24,0C78.41,65.69,73.25,60,73.25,53s5-12.74,11.44-12.74S96.23,45.91,96.12,53,91.08,65.69,84.69,65.69Z"/>
+                </svg>
+                <span>Continue with Discord</span>
+            </a>
+            {% else %}
+            <div class="my-4 flex items-center gap-3">
+                <div class="h-px flex-1 bg-white/10"></div>
+                <span class="text-[11px] font-semibold text-slate-500 uppercase tracking-wider">or</span>
+                <div class="h-px flex-1 bg-white/10"></div>
+            </div>
+
+            <div class="p-3 rounded-2xl bg-slate-900/90 border border-white/5 text-center space-y-1">
+                <div class="flex items-center justify-center gap-1.5 text-slate-400 text-xs font-medium">
+                    <svg class="w-3.5 h-3.5 fill-slate-500" viewBox="0 0 127.14 96.36">
+                        <path d="M107.7,8.07A105.15,105.15,0,0,0,81.47,0a72.06,72.06,0,0,0-3.36,6.83A97.68,97.68,0,0,0,49,6.83,72.37,72.37,0,0,0,45.64,0,105.89,105.89,0,0,0,19.39,8.09C2.79,32.65-1.71,56.6.54,80.21h0A105.73,105.73,0,0,0,32.71,96.36,77.7,77.7,0,0,0,39.6,85.25a68.42,68.42,0,0,1-10.85-5.18c.91-.66,1.8-1.34,2.66-2a75.57,75.57,0,0,0,64.32,0c.87.71,1.76,1.39,2.66,2a68.68,68.68,0,0,1-10.87,5.19,77,77,0,0,0,6.89,11.1A105.25,105.25,0,0,0,126.6,80.22h0C129.24,52.84,122.09,29.11,107.7,8.07ZM42.45,65.69C36.18,65.69,31,60,31,53s5-12.74,11.43-12.74S54,45.91,53.89,53,48.84,65.69,42.45,65.69Zm42.24,0C78.41,65.69,73.25,60,73.25,53s5-12.74,11.44-12.74S96.23,45.91,96.12,53,91.08,65.69,84.69,65.69Z"/>
+                    </svg>
+                    <span>Discord Login Not Configured</span>
+                </div>
+                <p class="text-[11px] text-slate-500 leading-relaxed">
+                    Discord login is either disabled or needs to be set up by an admin in <span class="text-slate-400 font-medium">Settings &rarr; Discord Login</span>.
+                </p>
+            </div>
+            {% endif %}
+        </div>
+    </div>
+
+    <script>
+        lucide.createIcons();
+
+        function switchAuthTab(tab) {
+            const loginForm = document.getElementById('form-login');
+            const registerForm = document.getElementById('form-register');
+            const loginBtn = document.getElementById('tab-btn-login');
+            const registerBtn = document.getElementById('tab-btn-register');
+
+            if (tab === 'login') {
+                loginForm.classList.remove('hidden');
+                registerForm.classList.add('hidden');
+                loginBtn.className = 'flex-1 py-1.5 rounded-xl transition-all duration-200 bg-white/10 text-white font-semibold shadow-sm';
+                registerBtn.className = 'flex-1 py-1.5 rounded-xl transition-all duration-200 text-slate-400 hover:text-slate-200';
+            } else {
+                loginForm.classList.add('hidden');
+                registerForm.classList.remove('hidden');
+                registerBtn.className = 'flex-1 py-1.5 rounded-xl transition-all duration-200 bg-white/10 text-white font-semibold shadow-sm';
+                loginBtn.className = 'flex-1 py-1.5 rounded-xl transition-all duration-200 text-slate-400 hover:text-slate-200';
+            }
+        }
+    </script>
+</body>
+</html>

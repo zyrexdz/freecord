@@ -1,0 +1,194 @@
+{% extends "base.html" %}
+
+{% block title %}Security - FreeCord{% endblock %}
+{% block page_title %}Security{% endblock %}
+
+{% block extra_head %}
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+{% endblock %}
+
+{% block content %}
+<div class="space-y-6">
+
+    <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+        <div class="glass-panel rounded-2xl p-5">
+            <p class="text-xs font-semibold uppercase tracking-wider text-slate-400">Total Verifications</p>
+            <h3 class="text-2xl font-extrabold text-white mt-1">{{ total_members }}</h3>
+            <p class="text-[11px] text-slate-400 mt-2">All time verification attempts</p>
+        </div>
+
+        <div class="glass-panel rounded-2xl p-5">
+            <p class="text-xs font-semibold uppercase tracking-wider text-slate-400">Home Connections</p>
+            <h3 class="text-2xl font-extrabold text-emerald-400 mt-1">{{ residential_count }}</h3>
+            <p class="text-[11px] text-emerald-400/80 mt-2">Clean residential IPs</p>
+        </div>
+
+        <div class="glass-panel rounded-2xl p-5">
+            <p class="text-xs font-semibold uppercase tracking-wider text-slate-400">VPN and Proxy Blocked</p>
+            <h3 class="text-2xl font-extrabold text-rose-400 mt-1">{{ vpn_count }}</h3>
+            <p class="text-[11px] text-rose-400/80 mt-2">VPN and Datacenter IPs</p>
+        </div>
+
+        <div class="glass-panel rounded-2xl p-5">
+            <p class="text-xs font-semibold uppercase tracking-wider text-slate-400">Cellular</p>
+            <h3 class="text-2xl font-extrabold text-sky-400 mt-1">{{ cellular_count }}</h3>
+            <p class="text-[11px] text-sky-400/80 mt-2">Mobile LTE networks</p>
+        </div>
+    </div>
+
+    <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+        
+        <div class="glass-panel rounded-2xl p-6 border border-slate-800">
+            <h3 class="text-sm font-bold uppercase tracking-wider text-slate-400 mb-4 flex items-center gap-2">
+                <i data-lucide="pie-chart" class="w-4 h-4 text-discord-blurple"></i>
+                <span>Connection Types</span>
+            </h3>
+            <div class="h-64 flex items-center justify-center">
+                <canvas id="trafficChart"></canvas>
+            </div>
+        </div>
+
+        <div class="glass-panel rounded-2xl p-6 border border-slate-800">
+            <h3 class="text-sm font-bold uppercase tracking-wider text-slate-400 mb-4 flex items-center gap-2">
+                <i data-lucide="globe" class="w-4 h-4 text-emerald-400"></i>
+                <span>Top Countries</span>
+            </h3>
+            <div class="h-64 flex items-center justify-center">
+                <canvas id="countryChart"></canvas>
+            </div>
+        </div>
+
+    </div>
+
+    {% if alt_clusters %}
+    <div class="glass-panel rounded-2xl overflow-hidden border border-amber-500/20">
+        <div class="p-4 border-b border-white/5 flex items-center justify-between bg-amber-500/5">
+            <div class="flex items-center gap-2">
+                <i data-lucide="users" class="w-4 h-4 text-amber-400"></i>
+                <h3 class="font-bold text-sm text-white">Alt Account Detection (Shared IP Clusters)</h3>
+            </div>
+            <span class="text-[10px] px-2 py-0.5 rounded bg-amber-500/20 text-amber-300 font-bold">{{ alt_clusters|length }} Clusters Flagged</span>
+        </div>
+        <div class="p-4 grid grid-cols-1 md:grid-cols-2 gap-3">
+            {% for c in alt_clusters %}
+            <div class="p-3 rounded-xl bg-slate-900/60 border border-white/5 space-y-1.5 text-xs">
+                <div class="flex items-center justify-between">
+                    <span class="font-mono text-slate-300 font-bold">{{ c.ip }}</span>
+                    <span class="px-2 py-0.5 rounded bg-rose-500/10 text-rose-400 text-[10px] font-bold">{{ c.count }} Linked Accounts</span>
+                </div>
+                <div class="text-[11px] text-slate-400">
+                    Accounts: <span class="text-slate-200 font-medium">{{ c.users|join(', ') }}</span>
+                </div>
+            </div>
+            {% endfor %}
+        </div>
+    </div>
+    {% endif %}
+
+    <div class="glass-panel rounded-2xl overflow-hidden border border-slate-800">
+        <div class="p-4 border-b border-slate-800 flex items-center justify-between">
+            <h3 class="font-bold text-sm text-white flex items-center gap-2">
+                <i data-lucide="list-checks" class="w-4 h-4 text-sky-400"></i>
+                <span>Security Logs</span>
+            </h3>
+        </div>
+        <div class="overflow-x-auto">
+            <table class="w-full text-left text-xs text-slate-300">
+                <thead class="bg-slate-900/80 text-slate-400 uppercase font-semibold text-[11px] border-b border-slate-800">
+                    <tr>
+                        <th class="py-3.5 px-4">Event</th>
+                        <th class="py-3.5 px-4">Description</th>
+                        <th class="py-3.5 px-4">IP Address</th>
+                        <th class="py-3.5 px-4">Time</th>
+                    </tr>
+                </thead>
+                <tbody class="divide-y divide-slate-800/60">
+                    {% for log in audit_logs %}
+                    <tr class="hover:bg-slate-900/40 transition-colors">
+                        <td class="py-3 px-4">
+                            {% if log.event_type == 'VERIFY_SUCCESS' %}
+                            <span class="px-2 py-0.5 rounded text-[10px] font-bold bg-emerald-500/10 text-emerald-400 border border-emerald-500/20">VERIFIED</span>
+                            {% elif log.event_type == 'VERIFY_BLOCKED' %}
+                            <span class="px-2 py-0.5 rounded text-[10px] font-bold bg-rose-500/10 text-rose-400 border border-rose-500/20">BLOCKED</span>
+                            {% else %}
+                            <span class="px-2 py-0.5 rounded text-[10px] font-bold bg-indigo-500/10 text-indigo-400 border border-indigo-500/20">{{ log.event_type }}</span>
+                            {% endif %}
+                        </td>
+                        <td class="py-3 px-4 font-medium text-slate-200">
+                            {{ log.description }}
+                        </td>
+                        <td class="py-3 px-4 font-mono text-slate-400">
+                            {{ log.ip_address or 'Internal' }}
+                        </td>
+                        <td class="py-3 px-4 text-slate-400">
+                            {{ log.created_at.strftime('%Y-%m-%d %H:%M:%S') }}
+                        </td>
+                    </tr>
+                    {% else %}
+                    <tr>
+                        <td colspan="4" class="py-8 text-center text-slate-500">
+                            No security logs recorded yet.
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+</div>
+{% endblock %}
+
+{% block extra_scripts %}
+<script>
+    document.addEventListener('DOMContentLoaded', () => {
+        const trafficCtx = document.getElementById('trafficChart').getContext('2d');
+        new Chart(trafficCtx, {
+            type: 'doughnut',
+            data: {
+                labels: ['Residential', 'VPN and Proxy', 'Cellular LTE'],
+                datasets: [{
+                    data: [{{ residential_count }}, {{ vpn_count }}, {{ cellular_count }}],
+                    backgroundColor: ['#57F287', '#ED4245', '#38BDF8'],
+                    borderWidth: 0,
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: {
+                    legend: { position: 'bottom', labels: { color: '#94a3b8', font: { family: 'Inter', size: 11 } } }
+                }
+            }
+        });
+
+        const countryLabels = {{ country_labels_json|safe }};
+        const countryValues = {{ country_values_json|safe }};
+
+        const countryCtx = document.getElementById('countryChart').getContext('2d');
+        new Chart(countryCtx, {
+            type: 'bar',
+            data: {
+                labels: countryLabels.length ? countryLabels : ['No Data'],
+                datasets: [{
+                    label: 'Members',
+                    data: countryValues.length ? countryValues : [0],
+                    backgroundColor: '#5865F2',
+                    borderRadius: 6,
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                scales: {
+                    y: { grid: { color: '#1e293b' }, ticks: { color: '#94a3b8', precision: 0 } },
+                    x: { grid: { display: false }, ticks: { color: '#94a3b8' } }
+                },
+                plugins: {
+                    legend: { display: false }
+                }
+            }
+        });
+    });
+</script>
+{% endblock %}

@@ -1,0 +1,60 @@
+# Byte-compiled / optimized / DLL files
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+
+# Environments
+.env
+.venv/
+venv/
+ENV/
+env/
+env.bak/
+venv.bak/
+
+# Local databases & user data
+*.db
+*.sqlite
+*.sqlite3
+*.db-journal
+data/*.db
+data/*.sqlite3
+data/*.sqlite
+data/*.db-journal
+data/bin/
+data/cookies/
+data/cache/
+cloudflared.exe
+ngrok.exe
+*.exe
+
+
+# Backups & dumps
+backups/*.json
+backups/*.zip
+
+# Logs
+*.log
+logs/
+.system_generated/
+
+# Tests & temporary test artifacts
+*test*.py
+tests/
+.pytest_cache/
+
+# OS specific
+.DS_Store
+Thumbs.db
+desktop.ini
+*.tmp
+*.bak
+
+# IDE & Editor files
+.vscode/
+.idea/
+*.swp
+*.swo
+.cursor/
+.agents/

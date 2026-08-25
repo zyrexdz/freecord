@@ -1,0 +1,500 @@
+{% extends "base.html" %}
+
+{% block title %}Backups - FreeCord{% endblock %}
+{% block page_title %}Backups{% endblock %}
+
+{% block content %}
+<div class="space-y-6">
+
+    <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+        <div>
+            <h2 class="text-lg font-bold text-white">Server Backups</h2>
+            <p class="text-xs text-slate-400">Save and restore your server channels, roles, and emojis.</p>
+        </div>
+        <button onclick="document.getElementById('create-backup-modal').classList.remove('hidden')"
+            class="px-4 py-2.5 bg-indigo-600 hover:bg-indigo-500 text-white text-xs font-semibold rounded-2xl shadow-lg shadow-indigo-600/25 flex items-center justify-center gap-2 transition-all">
+            <i data-lucide="archive" class="w-4 h-4"></i>
+            <span>Create Backup</span>
+        </button>
+    </div>
+
+    <div id="backup-restore-panel" class="glass-panel rounded-3xl p-5 sm:p-6 border border-discord-blurple/30 shadow-2xl space-y-4 hidden animate-in fade-in zoom-in-95 duration-200">
+        <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-3 border-b border-white/10 pb-4">
+            <div class="flex items-center gap-3">
+                <div class="w-10 h-10 rounded-2xl bg-indigo-500/10 text-discord-blurple flex items-center justify-center border border-indigo-500/20">
+                    <i data-lucide="rotate-ccw" class="w-5 h-5 animate-spin"></i>
+                </div>
+                <div>
+                    <div class="flex items-center gap-2">
+                        <h3 class="font-bold text-sm text-white">Live Server Restore Progress</h3>
+                        <span id="restore-ws-status" class="px-2 py-0.5 rounded-full text-[10px] font-bold bg-emerald-500/10 text-emerald-400 border border-emerald-500/20">Live Connected</span>
+                    </div>
+                    <p id="restore-active-id" class="text-xs text-slate-400 font-mono mt-0.5">Task: --</p>
+                </div>
+            </div>
+            <div class="flex items-center gap-2">
+                <button type="button" id="btn-stop-restore" onclick="stopActiveRestore(false)" class="px-3 py-1.5 bg-rose-500/20 hover:bg-rose-500/30 text-rose-300 border border-rose-500/30 rounded-xl text-xs font-semibold flex items-center gap-1.5 transition-colors">
+                    <i data-lucide="square" class="w-3.5 h-3.5"></i>
+                    <span>Stop Restore</span>
+                </button>
+                <button type="button" onclick="stopActiveRestore(true)" class="text-slate-400 hover:text-white p-1.5 rounded-xl bg-white/5 hover:bg-white/10 transition-colors" title="Close and cancel restore">
+                    <i data-lucide="x" class="w-4 h-4"></i>
+                </button>
+            </div>
+        </div>
+
+        <div class="space-y-1.5">
+            <div class="flex justify-between text-xs font-semibold">
+                <span class="text-slate-300">Restoration Progress</span>
+                <span id="restore-progress-pct" class="font-mono text-emerald-400">0%</span>
+            </div>
+            <div class="w-full h-3 rounded-full bg-slate-900 overflow-hidden border border-white/5 p-0.5">
+                <div id="restore-progress-bar" class="h-full bg-gradient-to-r from-indigo-500 via-discord-blurple to-emerald-400 rounded-full transition-all duration-300" style="width: 0%"></div>
+            </div>
+        </div>
+
+        <div class="grid grid-cols-2 sm:grid-cols-4 gap-3 text-center text-xs">
+            <div class="p-3 rounded-xl bg-slate-900/70 border border-slate-800">
+                <span class="text-slate-400">Roles Restored</span>
+                <p id="stat-roles" class="text-lg font-extrabold text-indigo-400 mt-0.5">0</p>
+            </div>
+            <div class="p-3 rounded-xl bg-slate-900/70 border border-slate-800">
+                <span class="text-slate-400">Categories</span>
+                <p id="stat-cats" class="text-lg font-extrabold text-sky-400 mt-0.5">0</p>
+            </div>
+            <div class="p-3 rounded-xl bg-slate-900/70 border border-slate-800">
+                <span class="text-slate-400">Channels</span>
+                <p id="stat-chs" class="text-lg font-extrabold text-emerald-400 mt-0.5">0</p>
+            </div>
+            <div class="p-3 rounded-xl bg-slate-900/70 border border-slate-800">
+                <span class="text-slate-400">Status</span>
+                <p id="stat-status" class="text-lg font-extrabold text-amber-400 mt-0.5">RUNNING</p>
+            </div>
+        </div>
+
+        <div class="space-y-1.5">
+            <div class="flex items-center justify-between text-[11px] text-slate-400 uppercase tracking-wider font-bold">
+                <span>Live Restoration Console</span>
+                <span class="text-[10px] font-normal lowercase text-slate-500">Live API stream</span>
+            </div>
+            <div id="backup-console" class="p-3.5 rounded-xl h-44 overflow-y-auto text-slate-300 space-y-1 bg-slate-950/90 border border-slate-800/80 font-mono text-[11px]">
+                <div class="text-slate-500">Initializing server restore console...</div>
+            </div>
+        </div>
+    </div>
+
+    <div class="glass-panel rounded-2xl overflow-hidden border border-slate-800">
+        <div class="overflow-x-auto">
+            <table class="w-full text-left text-xs text-slate-300">
+                <thead class="bg-slate-900/80 text-slate-400 uppercase font-semibold text-[11px] border-b border-slate-800">
+                    <tr>
+                        <th class="py-3.5 px-4">Server</th>
+                        <th class="py-3.5 px-4">Backup ID</th>
+                        <th class="py-3.5 px-4">Contents</th>
+                        <th class="py-3.5 px-4">File Size</th>
+                        <th class="py-3.5 px-4">Created Date</th>
+                        <th class="py-3.5 px-4 text-right">Actions</th>
+                    </tr>
+                </thead>
+                <tbody class="divide-y divide-slate-800/60">
+                    {% for b in backups %}
+                    <tr class="hover:bg-slate-900/40 transition-colors">
+                        <td class="py-3 px-4 flex items-center gap-3">
+                            {% if b.icon_url %}
+                            <img src="{{ b.icon_url }}" alt="{{ b.guild_name }}" class="w-8 h-8 rounded-lg object-cover border border-slate-700">
+                            {% else %}
+                            <div class="w-8 h-8 rounded-lg bg-indigo-600/20 text-indigo-400 flex items-center justify-center font-bold">
+                                {{ b.guild_name[0]|upper }}
+                            </div>
+                            {% endif %}
+                            <div>
+                                <p class="font-bold text-white">{{ b.guild_name }}</p>
+                                <p class="text-[10px] font-mono text-slate-500">ID: {{ b.guild_id }}</p>
+                            </div>
+                        </td>
+                        <td class="py-3 px-4 font-mono text-discord-blurple font-semibold">
+                            {{ b.backup_uuid }}
+                        </td>
+                        <td class="py-3 px-4">
+                            <div class="flex items-center gap-2 text-[11px]">
+                                <span class="px-2 py-0.5 rounded bg-indigo-500/10 text-indigo-300 border border-indigo-500/20">{{ b.roles_count }} Roles</span>
+                                <span class="px-2 py-0.5 rounded bg-sky-500/10 text-sky-300 border border-sky-500/20">{{ b.channels_count }} Channels</span>
+                                <span class="px-2 py-0.5 rounded bg-amber-500/10 text-amber-300 border border-amber-500/20">{{ b.emojis_count }} Emojis</span>
+                            </div>
+                        </td>
+                        <td class="py-3 px-4 font-mono text-slate-400">
+                            {{ (b.size_bytes / 1024)|round(1) }} KB
+                        </td>
+                        <td class="py-3 px-4 text-slate-400">
+                            {{ b.created_at.strftime('%b %d, %Y %H:%M') }}
+                        </td>
+                        <td class="py-3 px-4 text-right space-x-1.5">
+                            <a href="/backups/{{ b.backup_uuid }}/preview" class="p-1.5 rounded-lg bg-slate-800 hover:bg-slate-700 text-sky-400 inline-flex items-center gap-1" title="Preview">
+                                <i data-lucide="eye" class="w-3.5 h-3.5"></i>
+                                <span>Preview</span>
+                            </a>
+                            <a href="/backups/{{ b.backup_uuid }}/download" class="p-1.5 rounded-lg bg-slate-800 hover:bg-slate-700 text-emerald-400 inline-flex items-center gap-1" title="Download JSON">
+                                <i data-lucide="download" class="w-3.5 h-3.5"></i>
+                            </a>
+                            <button onclick="openRestoreModal('{{ b.backup_uuid }}', '{{ b.guild_name }}')" class="p-1.5 rounded-lg bg-indigo-600/20 hover:bg-indigo-600/40 text-indigo-300 inline-flex items-center gap-1" title="Restore Server">
+                                <i data-lucide="rotate-ccw" class="w-3.5 h-3.5"></i>
+                                <span>Restore</span>
+                            </button>
+                            <button type="button" onclick="openDeleteBackupModal('{{ b.backup_uuid }}', '{{ b.guild_name }}')" class="p-1.5 rounded-lg bg-rose-500/10 hover:bg-rose-500/20 text-rose-400 inline-flex items-center" title="Delete Backup">
+                                <i data-lucide="trash-2" class="w-3.5 h-3.5"></i>
+                            </button>
+                        </td>
+                    </tr>
+                    {% else %}
+                    <tr>
+                        <td colspan="6" class="py-8 text-center text-slate-500">
+                            No backups created yet. Click Create Backup to save your server.
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+</div>
+
+<div id="create-backup-modal" class="fixed inset-0 z-50 bg-black/70 backdrop-blur-sm flex items-center justify-center p-4 hidden">
+    <div class="glass-panel w-full max-w-md rounded-2xl p-6 shadow-2xl border border-slate-700">
+        <div class="flex items-center justify-between border-b border-slate-800 pb-3 mb-4">
+            <h3 class="font-bold text-base text-white flex items-center gap-2">
+                <i data-lucide="archive" class="w-5 h-5 text-indigo-400"></i>
+                <span>Create Backup</span>
+            </h3>
+            <button onclick="document.getElementById('create-backup-modal').classList.add('hidden')" class="text-slate-400 hover:text-white">
+                <i data-lucide="x" class="w-5 h-5"></i>
+            </button>
+        </div>
+
+        <form action="/backups/create" method="POST" class="space-y-4 text-xs">
+            <div>
+                <label class="block font-semibold uppercase tracking-wider text-slate-400 mb-1">Select Server</label>
+                <select name="guild_id" id="backup-guild-select" required class="w-full px-3 py-2 bg-slate-900 border border-slate-800 rounded-xl text-slate-200 focus:outline-none focus:border-indigo-500">
+                    {% for g in available_guilds %}
+                    <option value="{{ g.guild_id }}" data-bot="{{ g.bot_id }}">
+                        {{ g.guild_name }} (via {{ g.bot_name }})
+                    </option>
+                    {% else %}
+                    <option value="">No servers available</option>
+                    {% endfor %}
+                </select>
+            </div>
+
+            <input type="hidden" name="bot_id" id="backup-bot-id" value="{{ available_guilds[0].bot_id if available_guilds else 1 }}">
+
+            <div class="p-3 rounded-xl bg-slate-900/60 border border-slate-800 space-y-2">
+                <label class="flex items-center justify-between cursor-pointer">
+                    <span class="text-slate-300 font-medium">Save Recent Channel Messages</span>
+                    <input type="checkbox" name="include_messages" value="true" checked class="rounded bg-slate-800 border-slate-700 text-indigo-500">
+                </label>
+            </div>
+
+            <div class="pt-2 flex justify-end gap-2">
+                <button type="button" onclick="document.getElementById('create-backup-modal').classList.add('hidden')"
+                    class="px-4 py-2 bg-slate-800 hover:bg-slate-700 text-slate-300 font-semibold rounded-xl">
+                    Cancel
+                </button>
+                <button type="submit"
+                    class="px-5 py-2 bg-indigo-600 hover:bg-indigo-500 text-white font-bold rounded-xl shadow-lg shadow-indigo-600/25">
+                    Save Backup
+                </button>
+            </div>
+        </form>
+    </div>
+</div>
+
+<div id="restore-backup-modal" class="fixed inset-0 z-50 bg-black/70 backdrop-blur-sm flex items-center justify-center p-4 hidden">
+    <div class="glass-panel w-full max-w-md rounded-2xl p-6 shadow-2xl border border-slate-700">
+        <div class="flex items-center justify-between border-b border-slate-800 pb-3 mb-4">
+            <h3 class="font-bold text-base text-white flex items-center gap-2">
+                <i data-lucide="rotate-ccw" class="w-5 h-5 text-discord-blurple"></i>
+                <span>Restore Backup</span>
+            </h3>
+            <button onclick="document.getElementById('restore-backup-modal').classList.add('hidden')" class="text-slate-400 hover:text-white">
+                <i data-lucide="x" class="w-5 h-5"></i>
+            </button>
+        </div>
+
+        <form id="restore-form" action="" method="POST" class="space-y-4 text-xs">
+            <p class="text-slate-300">
+                Restoring snapshot: <strong id="restore-guild-title" class="text-white"></strong>
+            </p>
+
+            <div>
+                <label class="block font-semibold uppercase tracking-wider text-slate-400 mb-1">Target Discord Server</label>
+                <select name="target_guild_id" id="restore-guild-select" required class="w-full px-3 py-2 bg-slate-900 border border-slate-800 rounded-xl text-slate-200 focus:outline-none">
+                    {% for g in available_guilds %}
+                    <option value="{{ g.guild_id }}" data-bot="{{ g.bot_id }}">
+                        {{ g.guild_name }} (via {{ g.bot_name }})
+                    </option>
+                    {% endfor %}
+                </select>
+            </div>
+
+            <input type="hidden" name="bot_id" id="restore-bot-id" value="{{ available_guilds[0].bot_id if available_guilds else 1 }}">
+
+            <div class="space-y-2 p-3 rounded-xl bg-slate-900/60 border border-slate-800">
+                <label class="flex items-center justify-between cursor-pointer">
+                    <span class="text-slate-300">Restore Roles & Permissions</span>
+                    <input type="checkbox" name="restore_roles" value="true" checked class="rounded bg-slate-800 border-slate-700 text-indigo-500">
+                </label>
+                <label class="flex items-center justify-between cursor-pointer">
+                    <span class="text-slate-300">Restore Categories & Channels</span>
+                    <input type="checkbox" name="restore_channels" value="true" checked class="rounded bg-slate-800 border-slate-700 text-indigo-500">
+                </label>
+                <label class="flex items-center justify-between cursor-pointer">
+                    <span class="text-slate-300">Restore Custom Emojis</span>
+                    <input type="checkbox" name="restore_emojis" value="true" checked class="rounded bg-slate-800 border-slate-700 text-indigo-500">
+                </label>
+                <label class="flex items-center justify-between cursor-pointer pt-1 border-t border-slate-800 text-rose-400">
+                    <span>Wipe Target Server First (Deletes old channels, roles & emojis)</span>
+                    <input type="checkbox" name="wipe_first" value="true" class="rounded bg-slate-800 border-rose-500/50 text-rose-500">
+                </label>
+            </div>
+
+            <div class="pt-2 flex justify-end gap-2">
+                <button type="button" onclick="document.getElementById('restore-backup-modal').classList.add('hidden')"
+                    class="px-4 py-2 bg-slate-800 hover:bg-slate-700 text-slate-300 font-semibold rounded-xl">
+                    Cancel
+                </button>
+                <button type="submit"
+                    class="px-5 py-2 bg-discord-blurple hover:bg-indigo-600 text-white font-bold rounded-xl shadow-lg shadow-discord-blurple/25">
+                    Start Restore
+                </button>
+            </div>
+        </form>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_scripts %}
+<script>
+    const backupSelect = document.getElementById('backup-guild-select');
+    if (backupSelect) {
+        backupSelect.addEventListener('change', function() {
+            const botId = this.options[this.selectedIndex].getAttribute('data-bot');
+            document.getElementById('backup-bot-id').value = botId;
+        });
+    }
+
+    const restoreSelect = document.getElementById('restore-guild-select');
+    if (restoreSelect) {
+        restoreSelect.addEventListener('change', function() {
+            const botId = this.options[this.selectedIndex].getAttribute('data-bot');
+            document.getElementById('restore-bot-id').value = botId;
+        });
+    }
+
+    let backupSocket = null;
+    let backupPollInterval = null;
+
+    function colorizeBackupLog(text) {
+        let colorClass = 'text-slate-300';
+        if (text.includes('[SUCCESS]')) colorClass = 'text-emerald-400 font-semibold';
+        else if (text.includes('[COMPLETED]')) colorClass = 'text-emerald-300 font-bold';
+        else if (text.includes('[ERROR]')) colorClass = 'text-rose-400 font-semibold';
+        else if (text.includes('[WARN]')) colorClass = 'text-amber-400';
+        else if (text.includes('[*]')) colorClass = 'text-indigo-300';
+        return `<div class="text-[11px] font-mono leading-tight py-0.5 ${colorClass}">${text.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;")}</div>`;
+    }
+
+    let currentActiveRestoreId = null;
+
+    function renderBackupState(data) {
+        if (!data) return;
+        const panel = document.getElementById('backup-restore-panel');
+        if (panel) panel.classList.remove('hidden');
+
+        if (data.progress !== undefined) {
+            const pct = Math.min(100, Math.max(0, data.progress));
+            document.getElementById('restore-progress-pct').textContent = pct + '%';
+            document.getElementById('restore-progress-bar').style.width = pct + '%';
+        }
+        if (data.roles !== undefined) document.getElementById('stat-roles').textContent = data.roles;
+        if (data.categories !== undefined) document.getElementById('stat-cats').textContent = data.categories;
+        if (data.channels !== undefined) document.getElementById('stat-chs').textContent = data.channels;
+        if (data.status !== undefined) {
+            const stEl = document.getElementById('stat-status');
+            stEl.textContent = data.status;
+            if (data.status === 'COMPLETED') stEl.className = 'text-lg font-extrabold text-emerald-400 mt-0.5';
+            else if (data.status === 'FAILED' || data.status === 'STOPPED') stEl.className = 'text-lg font-extrabold text-rose-400 mt-0.5';
+            else stEl.className = 'text-lg font-extrabold text-amber-400 mt-0.5';
+        }
+
+        const consoleElem = document.getElementById('backup-console');
+        if (consoleElem && data.logs && Array.isArray(data.logs) && data.logs.length > 0) {
+            consoleElem.innerHTML = data.logs.map(colorizeBackupLog).join('');
+            consoleElem.scrollTop = consoleElem.scrollHeight;
+        }
+
+        if (data.status === 'COMPLETED' || data.status === 'FAILED' || data.status === 'STOPPED') {
+            if (backupPollInterval) clearInterval(backupPollInterval);
+            const spinIcon = document.querySelector('#backup-restore-panel i[data-lucide="rotate-ccw"]');
+            if (spinIcon) spinIcon.classList.remove('animate-spin');
+        }
+    }
+
+    async function stopActiveRestore(closePanel = false) {
+        if (currentActiveRestoreId) {
+            try {
+                await fetch(`/api/backups/${currentActiveRestoreId}/stop`, { method: 'POST' });
+            } catch (e) {
+                console.error("Stop restore error", e);
+            }
+        }
+
+        const stEl = document.getElementById('stat-status');
+        if (stEl) {
+            stEl.textContent = 'STOPPED';
+            stEl.className = 'text-lg font-extrabold text-rose-400 mt-0.5';
+        }
+        const wsBadg = document.getElementById('restore-ws-status');
+        if (wsBadg) {
+            wsBadg.textContent = 'Cancelled';
+            wsBadg.className = 'px-2 py-0.5 rounded-full text-[10px] font-bold bg-rose-500/10 text-rose-400 border border-rose-500/20';
+        }
+
+        const spinIcon = document.querySelector('#backup-restore-panel i[data-lucide="rotate-ccw"]');
+        if (spinIcon) spinIcon.classList.remove('animate-spin');
+
+        if (backupPollInterval) clearInterval(backupPollInterval);
+        if (backupSocket) {
+            try { backupSocket.close(); } catch(e) {}
+        }
+
+        if (closePanel) {
+            document.getElementById('backup-restore-panel').classList.add('hidden');
+        }
+    }
+
+    function startLiveBackupStreaming(restoreId) {
+        currentActiveRestoreId = restoreId;
+        document.getElementById('restore-active-id').textContent = `Task: ${restoreId}`;
+        const panel = document.getElementById('backup-restore-panel');
+        if (panel) panel.classList.remove('hidden');
+
+        if (backupSocket) {
+            try { backupSocket.close(); } catch(e) {}
+        }
+        if (backupPollInterval) clearInterval(backupPollInterval);
+
+        const protocol = window.location.protocol === 'https:' ? 'wss:' : 'ws:';
+        const wsUrl = `${protocol}//${window.location.host}/ws/backups/${restoreId}`;
+        backupSocket = new WebSocket(wsUrl);
+
+        backupSocket.onopen = function() {
+            document.getElementById('restore-ws-status').textContent = 'Live Connected';
+            document.getElementById('restore-ws-status').className = 'px-2 py-0.5 rounded-full text-[10px] font-bold bg-emerald-500/10 text-emerald-400 border border-emerald-500/20';
+        };
+
+        backupSocket.onmessage = function(event) {
+            try {
+                const data = JSON.parse(event.data);
+                renderBackupState(data);
+            } catch(e) {
+                console.error("Backup WS parse error", e);
+            }
+        };
+
+        backupSocket.onerror = function() {
+            document.getElementById('restore-ws-status').textContent = 'Polling Active';
+            document.getElementById('restore-ws-status').className = 'px-2 py-0.5 rounded-full text-[10px] font-bold bg-amber-500/10 text-amber-400 border border-amber-500/20';
+        };
+
+        backupSocket.onclose = function() {
+            document.getElementById('restore-ws-status').textContent = 'Live Finished';
+            document.getElementById('restore-ws-status').className = 'px-2 py-0.5 rounded-full text-[10px] font-bold bg-slate-500/10 text-slate-400 border border-slate-500/20';
+        };
+
+        backupPollInterval = setInterval(async () => {
+            try {
+                const res = await fetch(`/api/backups/${restoreId}/status`);
+                if (res.ok) {
+                    const data = await res.json();
+                    renderBackupState(data);
+                }
+            } catch(e) {}
+        }, 1200);
+    }
+
+    const restoreForm = document.getElementById('restore-form');
+    if (restoreForm) {
+        restoreForm.addEventListener('submit', async function(e) {
+            e.preventDefault();
+            const actionUrl = this.action;
+            const formData = new FormData(this);
+            document.getElementById('restore-backup-modal').classList.add('hidden');
+
+            try {
+                const resp = await fetch(actionUrl, {
+                    method: 'POST',
+                    body: formData,
+                    headers: { 'X-Requested-With': 'XMLHttpRequest' }
+                });
+                if (resp.ok) {
+                    const data = await resp.json();
+                    if (data.restore_id) {
+                        startLiveBackupStreaming(data.restore_id);
+                        return;
+                    }
+                }
+                window.location.reload();
+            } catch(err) {
+                this.submit();
+            }
+        });
+    }
+
+    function openRestoreModal(backupUuid, guildName) {
+        document.getElementById('restore-form').action = `/backups/${backupUuid}/restore`;
+        document.getElementById('restore-guild-title').textContent = `${guildName} (${backupUuid})`;
+        document.getElementById('restore-backup-modal').classList.remove('hidden');
+    }
+
+    function openDeleteBackupModal(backupUuid, guildName) {
+        document.getElementById('delete-backup-title').textContent = `${guildName} (${backupUuid})`;
+        document.getElementById('delete-backup-form').action = `/backups/${backupUuid}/delete`;
+        document.getElementById('delete-backup-modal').classList.remove('hidden');
+    }
+
+    function closeDeleteBackupModal() {
+        document.getElementById('delete-backup-modal').classList.add('hidden');
+    }
+
+    document.addEventListener('DOMContentLoaded', () => {
+        const urlParams = new URLSearchParams(window.location.search);
+        const activeRestore = urlParams.get('active_restore');
+        if (activeRestore) {
+            startLiveBackupStreaming(activeRestore);
+        }
+    });
+</script>
+
+<div id="delete-backup-modal" class="fixed inset-0 z-50 bg-black/60 backdrop-blur-md flex items-center justify-center p-4 hidden">
+    <div class="glass-panel w-full max-w-sm rounded-3xl p-6 shadow-2xl border border-rose-500/20 text-center relative">
+        <div class="w-12 h-12 rounded-2xl bg-rose-500/10 text-rose-400 flex items-center justify-center mx-auto mb-3 border border-rose-500/20">
+            <i data-lucide="trash-2" class="w-6 h-6"></i>
+        </div>
+        <h3 class="text-base font-bold text-white">Delete Backup</h3>
+        <p class="text-xs text-slate-300 mt-1.5 leading-relaxed">
+            Are you sure you want to delete <strong id="delete-backup-title" class="text-white"></strong>?
+        </p>
+
+        <div class="grid grid-cols-2 gap-2.5 mt-5">
+            <button onclick="closeDeleteBackupModal()" class="py-2.5 px-4 rounded-2xl bg-white/10 hover:bg-white/15 text-slate-200 text-xs font-medium transition-colors">
+                Cancel
+            </button>
+            <form id="delete-backup-form" action="" method="POST" class="m-0">
+                <button type="submit" class="w-full py-2.5 px-4 rounded-2xl bg-rose-600 hover:bg-rose-500 text-white text-xs font-bold shadow-lg shadow-rose-600/25 transition-all">
+                    Delete
+                </button>
+            </form>
+        </div>
+    </div>
+</div>
+{% endblock %}

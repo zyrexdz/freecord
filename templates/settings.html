@@ -1,0 +1,369 @@
+{% extends "base.html" %}
+
+{% block title %}Settings - FreeCord{% endblock %}
+{% block page_title %}Settings{% endblock %}
+
+{% block content %}
+<div class="max-w-4xl space-y-8">
+
+    <div class="glass-panel rounded-2xl p-6 border border-slate-800 space-y-4">
+        <div class="flex items-center gap-3 border-b border-slate-800 pb-3">
+            <i data-lucide="shield-check" class="w-5 h-5 text-indigo-400"></i>
+            <div>
+                {% if user.role == 'admin' or user.id == 1 %}
+                <h3 class="font-bold text-base text-white">Admin Account and Password</h3>
+                <p class="text-xs text-slate-400">Update your FreeCord admin login password here.</p>
+                {% else %}
+                <h3 class="font-bold text-base text-white">Account Password</h3>
+                <p class="text-xs text-slate-400">Manage your account login password here.</p>
+                {% endif %}
+            </div>
+        </div>
+
+        <form action="/settings/password/change" method="POST" class="space-y-4 text-xs">
+            {% if user.password_hash and user.password_hash.startswith("DISCORD_OAUTH_") %}
+            <div class="p-3 rounded-xl bg-[#5865F2]/10 border border-[#5865F2]/20 flex items-center gap-2.5 text-[#5865F2]">
+                <i data-lucide="info" class="w-4 h-4 shrink-0"></i>
+                <p class="text-xs text-slate-300">You signed in with Discord. You can optionally set a password below to also log in with username/password.</p>
+            </div>
+            {% endif %}
+
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+                {% if not user.password_hash or not user.password_hash.startswith("DISCORD_OAUTH_") %}
+                <div>
+                    <label class="block font-semibold text-slate-300 mb-1">Current Password</label>
+                    <input type="password" name="current_password" required placeholder="••••••••"
+                        class="w-full px-3 py-2 bg-slate-900 border border-slate-800 rounded-xl font-mono text-slate-200 focus:outline-none focus:border-discord-blurple">
+                </div>
+                {% endif %}
+                <div>
+                    <label class="block font-semibold text-slate-300 mb-1">New Password</label>
+                    <input type="password" name="new_password" required minlength="6" placeholder="••••••••"
+                        class="w-full px-3 py-2 bg-slate-900 border border-slate-800 rounded-xl font-mono text-slate-200 focus:outline-none focus:border-discord-blurple">
+                </div>
+                <div>
+                    <label class="block font-semibold text-slate-300 mb-1">Confirm New Password</label>
+                    <input type="password" name="confirm_password" required minlength="6" placeholder="••••••••"
+                        class="w-full px-3 py-2 bg-slate-900 border border-slate-800 rounded-xl font-mono text-slate-200 focus:outline-none focus:border-discord-blurple">
+                </div>
+            </div>
+
+            <div class="flex justify-end pt-1">
+                <button type="submit" class="px-5 py-2 bg-indigo-600 hover:bg-indigo-500 text-white font-bold rounded-xl shadow-lg transition-all flex items-center gap-2">
+                    <i data-lucide="lock" class="w-4 h-4"></i>
+                    <span>Update Password</span>
+                </button>
+            </div>
+        </form>
+    </div>
+
+    {% if user.role == 'admin' or user.id == 1 %}
+    <div class="glass-panel rounded-2xl p-6 border border-slate-800 space-y-4">
+        <div class="flex items-center justify-between border-b border-slate-800 pb-3">
+            <div class="flex items-center gap-3">
+                <div class="w-9 h-9 rounded-xl bg-[#5865F2]/15 text-[#5865F2] flex items-center justify-center">
+                    <svg class="w-5 h-5 fill-current" viewBox="0 0 127.14 96.36">
+                        <path d="M107.7,8.07A105.15,105.15,0,0,0,81.47,0a72.06,72.06,0,0,0-3.36,6.83A97.68,97.68,0,0,0,49,6.83,72.37,72.37,0,0,0,45.64,0,105.89,105.89,0,0,0,19.39,8.09C2.79,32.65-1.71,56.6.54,80.21h0A105.73,105.73,0,0,0,32.71,96.36,77.7,77.7,0,0,0,39.6,85.25a68.42,68.42,0,0,1-10.85-5.18c.91-.66,1.8-1.34,2.66-2a75.57,75.57,0,0,0,64.32,0c.87.71,1.76,1.39,2.66,2a68.68,68.68,0,0,1-10.87,5.19,77,77,0,0,0,6.89,11.1A105.25,105.25,0,0,0,126.6,80.22h0C129.24,52.84,122.09,29.11,107.7,8.07ZM42.45,65.69C36.18,65.69,31,60,31,53s5-12.74,11.43-12.74S54,45.91,53.89,53,48.84,65.69,42.45,65.69Zm42.24,0C78.41,65.69,73.25,60,73.25,53s5-12.74,11.44-12.74S96.23,45.91,96.12,53,91.08,65.69,84.69,65.69Z"/>
+                    </svg>
+                </div>
+                <div>
+                    <h3 class="font-bold text-base text-white">Discord Login for Dashboard</h3>
+                    <p class="text-xs text-slate-400">Setup Discord OAuth login credentials so you and your team can sign in with Discord.</p>
+                </div>
+            </div>
+            <span class="px-2.5 py-1 rounded-full text-[11px] font-semibold {% if discord_oauth_config.get('enabled') and discord_oauth_config.get('client_id') %}bg-emerald-500/15 text-emerald-400 border border-emerald-500/30{% else %}bg-slate-800 text-slate-400 border border-slate-700{% endif %}">
+                {% if discord_oauth_config.get('enabled') and discord_oauth_config.get('client_id') %}Active{% else %}Disabled{% endif %}
+            </span>
+        </div>
+
+        <form action="/settings/discord-oauth/save" method="POST" class="space-y-4 text-xs">
+            <div class="flex items-center justify-between p-3.5 rounded-xl bg-slate-900/60 border border-slate-800">
+                <div>
+                    <p class="font-semibold text-slate-200">Enable Continue with Discord on Login Page</p>
+                    <p class="text-[11px] text-slate-400">Allows users to log into FreeCord with their Discord accounts.</p>
+                </div>
+                <label class="relative inline-flex items-center cursor-pointer">
+                    <input type="checkbox" name="enabled" value="true" {% if discord_oauth_config.get('enabled') %}checked{% endif %} class="sr-only peer">
+                    <div class="w-11 h-6 bg-slate-800 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-slate-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-[#5865F2]"></div>
+                </label>
+            </div>
+
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <div>
+                    <label class="block font-semibold text-slate-300 mb-1">Discord Application Client ID</label>
+                    <input type="text" name="client_id" value="{{ discord_oauth_config.get('client_id', '') }}" placeholder="123456789012345678"
+                        class="w-full px-3 py-2 bg-slate-900 border border-slate-800 rounded-xl font-mono text-slate-200 focus:outline-none focus:border-[#5865F2]">
+                </div>
+                <div>
+                    <label class="block font-semibold text-slate-300 mb-1">Discord Client Secret</label>
+                    <input type="password" name="client_secret" value="{{ discord_oauth_config.get('client_secret', '') }}" placeholder="••••••••••••••••"
+                        class="w-full px-3 py-2 bg-slate-900 border border-slate-800 rounded-xl font-mono text-slate-200 focus:outline-none focus:border-[#5865F2]">
+                </div>
+            </div>
+
+            <div class="p-3.5 rounded-xl bg-indigo-500/5 border border-indigo-500/15 space-y-2">
+                <label class="block font-semibold text-indigo-300">Required Discord Developer Portal Redirect URL</label>
+                <div class="flex items-center gap-2">
+                    <input type="text" readonly id="oauth-redirect-uri-val" value="{{ net_info['redirect_uri'] if net_info else '' }}"
+                        class="flex-1 px-3 py-2 bg-slate-900/90 border border-slate-800 rounded-xl font-mono text-slate-300 text-xs select-all">
+                    <button type="button" onclick="navigator.clipboard.writeText(document.getElementById('oauth-redirect-uri-val').value); this.innerText='Copied!';"
+                        class="px-3 py-2 bg-[#5865F2] hover:bg-[#4752C4] text-white font-semibold rounded-xl text-xs whitespace-nowrap transition-colors">
+                        Copy URL
+                    </button>
+                </div>
+                <p class="text-[11px] text-slate-400">
+                    Paste this URL into your Discord Developer Portal under OAuth2 Redirects.
+                </p>
+            </div>
+
+            <div class="flex justify-end pt-2">
+                <button type="submit" class="px-5 py-2 bg-[#5865F2] hover:bg-[#4752C4] text-white font-bold rounded-xl shadow-lg shadow-[#5865F2]/25 transition-all">
+                    Save Discord Login Settings
+                </button>
+            </div>
+        </form>
+    </div>
+
+    <div class="glass-panel rounded-2xl p-6 border border-slate-800 space-y-4">
+        <div class="flex items-center gap-3 border-b border-slate-800 pb-3">
+            <i data-lucide="key" class="w-5 h-5 text-amber-400"></i>
+            <div>
+                <h3 class="font-bold text-base text-white">API Keys</h3>
+                <p class="text-xs text-slate-400">Configure Cloudflare Turnstile, hCaptcha, and IPQualityScore keys.</p>
+            </div>
+        </div>
+
+        <form action="/settings/api-keys/save" method="POST" class="space-y-4 text-xs">
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <div>
+                    <label class="block font-semibold text-slate-300 mb-1">Cloudflare Turnstile Site Key</label>
+                    <input type="text" name="turnstile_site_key" value="{{ settings.TURNSTILE_SITE_KEY or '' }}" placeholder="0x4AAAAAA..."
+                        class="w-full px-3 py-2 bg-slate-900 border border-slate-800 rounded-xl font-mono text-slate-200 focus:outline-none focus:border-discord-blurple">
+                </div>
+                <div>
+                    <label class="block font-semibold text-slate-300 mb-1">Cloudflare Turnstile Secret Key</label>
+                    <input type="password" name="turnstile_secret_key" value="{{ settings.TURNSTILE_SECRET_KEY or '' }}" placeholder="••••••••"
+                        class="w-full px-3 py-2 bg-slate-900 border border-slate-800 rounded-xl font-mono text-slate-200 focus:outline-none focus:border-discord-blurple">
+                </div>
+            </div>
+
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <div>
+                    <label class="block font-semibold text-slate-300 mb-1">hCaptcha Site Key</label>
+                    <input type="text" name="hcaptcha_site_key" value="{{ settings.HCAPTCHA_SITE_KEY or '' }}" placeholder="10000000-aaaa-..."
+                        class="w-full px-3 py-2 bg-slate-900 border border-slate-800 rounded-xl font-mono text-slate-200 focus:outline-none focus:border-discord-blurple">
+                </div>
+                <div>
+                    <label class="block font-semibold text-slate-300 mb-1">hCaptcha Secret Key</label>
+                    <input type="password" name="hcaptcha_secret_key" value="{{ settings.HCAPTCHA_SECRET_KEY or '' }}" placeholder="••••••••"
+                        class="w-full px-3 py-2 bg-slate-900 border border-slate-800 rounded-xl font-mono text-slate-200 focus:outline-none focus:border-discord-blurple">
+                </div>
+            </div>
+
+            <div>
+                <label class="block font-semibold text-slate-300 mb-1">IPQualityScore Anti Fraud API Key (Optional)</label>
+                <input type="password" name="ipqualityscore_api_key" value="{{ settings.IPQUALITYSCORE_API_KEY or '' }}" placeholder="Free IP lookup is used by default"
+                    class="w-full px-3 py-2 bg-slate-900 border border-slate-800 rounded-xl font-mono text-slate-200 focus:outline-none focus:border-discord-blurple">
+            </div>
+
+            <div class="flex justify-end pt-2">
+                <button type="submit" class="px-5 py-2 bg-discord-blurple hover:bg-indigo-600 text-white font-bold rounded-xl shadow-lg shadow-discord-blurple/25 transition-all">
+                    Save Keys
+                </button>
+            </div>
+        </form>
+    </div>
+
+    <div class="glass-panel rounded-2xl p-6 border border-white/5 space-y-5">
+        <div class="flex items-center justify-between border-b border-white/5 pb-3">
+            <div class="flex items-center gap-3">
+                <i data-lucide="ban" class="w-5 h-5 text-rose-400"></i>
+                <div>
+                    <h3 class="font-bold text-base text-white">Global Blacklist</h3>
+                    <p class="text-xs text-slate-400">Block specific Discord IDs, IP addresses, or ASNs.</p>
+                </div>
+            </div>
+        </div>
+
+        <form action="/settings/blacklist/add" method="POST" class="p-4 rounded-xl bg-slate-900/60 border border-slate-800 space-y-3 text-xs">
+            <h4 class="font-bold text-slate-200">Add to Blacklist</h4>
+            <div class="grid grid-cols-1 sm:grid-cols-4 gap-3">
+                <div>
+                    <label class="block font-semibold text-slate-400 mb-1">Type</label>
+                    <select name="type" class="w-full px-3 py-2 bg-slate-900 border border-slate-800 rounded-xl text-slate-200">
+                        <option value="USER_ID">Discord User ID</option>
+                        <option value="IP">IP Address</option>
+                        <option value="ASN">ASN Network</option>
+                    </select>
+                </div>
+                <div>
+                    <label class="block font-semibold text-slate-400 mb-1">Target Scope</label>
+                    <select name="guild_id" class="w-full px-3 py-2 bg-slate-900 border border-slate-800 rounded-xl text-slate-200">
+                        <option value="ALL">All Servers (Global)</option>
+                        {% for g in available_guilds %}
+                        <option value="{{ g.id }}">{{ g.name }} ({{ g.bot_name }})</option>
+                        {% endfor %}
+                    </select>
+                </div>
+                <div>
+                    <label class="block font-semibold text-slate-400 mb-1">Value</label>
+                    <input type="text" name="value" required placeholder="User ID, IP, or ASN"
+                        class="w-full px-3 py-2 bg-slate-900 border border-slate-800 rounded-xl font-mono text-slate-200">
+                </div>
+                <div>
+                    <label class="block font-semibold text-slate-400 mb-1">Reason</label>
+                    <input type="text" name="reason" placeholder="Reason for blacklist"
+                        class="w-full px-3 py-2 bg-slate-900 border border-slate-800 rounded-xl text-slate-200">
+                </div>
+            </div>
+            <div class="flex justify-end">
+                <button type="submit" class="px-4 py-1.5 bg-rose-600 hover:bg-rose-500 text-white font-semibold rounded-lg text-xs transition-colors">
+                    Add Entry
+                </button>
+            </div>
+        </form>
+
+        <div class="overflow-x-auto">
+            <table class="w-full text-left text-xs text-slate-300">
+                <thead class="bg-slate-900/80 text-slate-400 uppercase font-semibold text-[11px] border-b border-slate-800">
+                    <tr>
+                        <th class="py-2.5 px-3">Type</th>
+                        <th class="py-2.5 px-3">Value</th>
+                        <th class="py-2.5 px-3">Scope</th>
+                        <th class="py-2.5 px-3">Reason</th>
+                        <th class="py-2.5 px-3">Added By</th>
+                        <th class="py-2.5 px-3 text-right">Action</th>
+                    </tr>
+                </thead>
+                <tbody class="divide-y divide-slate-800/60">
+                    {% for bl in blacklists %}
+                    <tr class="hover:bg-slate-900/40">
+                        <td class="py-2.5 px-3 font-semibold text-rose-400">{{ bl.type }}</td>
+                        <td class="py-2.5 px-3 font-mono text-slate-200">{{ bl.value }}</td>
+                        <td class="py-2.5 px-3">
+                            {% if bl.guild_id and bl.guild_id != 'ALL' %}
+                            <span class="px-2 py-0.5 rounded text-[10px] font-bold bg-indigo-500/10 text-indigo-400 border border-indigo-500/20 font-mono">{{ bl.guild_id }}</span>
+                            {% else %}
+                            <span class="px-2 py-0.5 rounded text-[10px] font-bold bg-emerald-500/10 text-emerald-400 border border-emerald-500/20">All Servers</span>
+                            {% endif %}
+                        </td>
+                        <td class="py-2.5 px-3 text-slate-400">{{ bl.reason }}</td>
+                        <td class="py-2.5 px-3 text-slate-500">{{ bl.added_by }}</td>
+                        <td class="py-2.5 px-3 text-right">
+                            <form action="/settings/blacklist/{{ bl.id }}/delete" method="POST" class="inline">
+                                <button type="submit" class="text-rose-400 hover:text-rose-300 p-1">
+                                    <i data-lucide="trash-2" class="w-3.5 h-3.5"></i>
+                                </button>
+                            </form>
+                        </td>
+                    </tr>
+                    {% else %}
+                    <tr>
+                        <td colspan="6" class="py-4 text-center text-slate-500">No blacklist entries yet.</td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+    <div class="glass-panel rounded-2xl p-6 border border-slate-800 space-y-5">
+        <div class="flex items-center justify-between border-b border-slate-800 pb-3">
+            <div class="flex items-center gap-3">
+                <i data-lucide="user-check" class="w-5 h-5 text-sky-400"></i>
+                <div>
+                    <h3 class="font-bold text-base text-white">Staff Accounts & Permissions</h3>
+                    <p class="text-xs text-slate-400">Manage dashboard users. Only Administrators have full permissions.</p>
+                </div>
+            </div>
+        </div>
+
+        <form action="/api/staff/create" method="POST" class="p-4 rounded-xl bg-slate-900/60 border border-slate-800 space-y-3 text-xs">
+            <h4 class="font-bold text-slate-200">Create Staff Account Manually</h4>
+            <div class="grid grid-cols-1 sm:grid-cols-3 gap-3">
+                <div>
+                    <label class="block font-semibold text-slate-400 mb-1">Username</label>
+                    <input type="text" name="username" required placeholder="staff_username"
+                        class="w-full px-3 py-2 bg-slate-900 border border-slate-800 rounded-xl text-slate-200">
+                </div>
+                <div>
+                    <label class="block font-semibold text-slate-400 mb-1">Password</label>
+                    <input type="password" name="password" required placeholder="••••••••"
+                        class="w-full px-3 py-2 bg-slate-900 border border-slate-800 rounded-xl text-slate-200">
+                </div>
+                <div>
+                    <label class="block font-semibold text-slate-400 mb-1">Role</label>
+                    <select name="role" class="w-full px-3 py-2 bg-slate-900 border border-slate-800 rounded-xl text-slate-200">
+                        <option value="manager">Manager (Standard - No Admin)</option>
+                        <option value="admin">Administrator (Full Access)</option>
+                    </select>
+                </div>
+            </div>
+            <div class="flex justify-end">
+                <button type="submit" class="px-4 py-1.5 bg-sky-600 hover:bg-sky-500 text-white font-semibold rounded-lg text-xs transition-colors">
+                    Create User
+                </button>
+            </div>
+        </form>
+
+        <div class="overflow-x-auto">
+            <table class="w-full text-left text-xs text-slate-300">
+                <thead class="bg-slate-900/80 text-slate-400 uppercase font-semibold text-[11px] border-b border-slate-800">
+                    <tr>
+                        <th class="py-2.5 px-3">User</th>
+                        <th class="py-2.5 px-3">Current Role</th>
+                        <th class="py-2.5 px-3">Change Role</th>
+                        <th class="py-2.5 px-3">Created</th>
+                        <th class="py-2.5 px-3 text-right">Actions</th>
+                    </tr>
+                </thead>
+                <tbody class="divide-y divide-slate-800/60">
+                    {% for u in staff_users %}
+                    <tr class="hover:bg-slate-900/40">
+                        <td class="py-2.5 px-3 font-semibold text-white flex items-center gap-2">
+                            {% if u.avatar_url %}
+                            <img src="{{ u.avatar_url }}" alt="{{ u.username }}" class="w-6 h-6 rounded-full border border-slate-700">
+                            {% else %}
+                            <div class="w-6 h-6 rounded-full bg-slate-800 flex items-center justify-center text-[10px] font-bold text-slate-300">
+                                {{ u.username[0]|upper }}
+                            </div>
+                            {% endif %}
+                            <span>{{ u.username }}</span>
+                        </td>
+                        <td class="py-2.5 px-3">
+                            {% if u.role == 'admin' %}
+                            <span class="px-2 py-0.5 rounded text-[10px] font-bold bg-indigo-500/20 text-indigo-300 border border-indigo-500/30 uppercase">Administrator</span>
+                            {% else %}
+                            <span class="px-2 py-0.5 rounded text-[10px] font-bold bg-slate-800 text-slate-400 border border-slate-700 uppercase">Manager</span>
+                            {% endif %}
+                        </td>
+                        <td class="py-2.5 px-3">
+                            <form action="/api/staff/update-role" method="POST" class="flex items-center gap-2">
+                                <input type="hidden" name="user_id" value="{{ u.id }}">
+                                <select name="role" onchange="this.form.submit()" class="px-2 py-1 bg-slate-900 border border-slate-800 rounded-lg text-slate-300 text-xs">
+                                    <option value="manager" {% if u.role == 'manager' %}selected{% endif %}>Manager</option>
+                                    <option value="admin" {% if u.role == 'admin' %}selected{% endif %}>Administrator</option>
+                                </select>
+                            </form>
+                        </td>
+                        <td class="py-2.5 px-3 text-slate-400">{{ u.created_at.strftime('%b %d, %Y') }}</td>
+                        <td class="py-2.5 px-3 text-right">
+                            {% if u.id != user.id %}
+                            <form action="/api/staff/delete" method="POST" class="inline" onsubmit="return confirm('Are you sure you want to remove this user?');">
+                                <input type="hidden" name="user_id" value="{{ u.id }}">
+                                <button type="submit" class="text-rose-400 hover:text-rose-300 p-1 text-xs">
+                                    <i data-lucide="trash-2" class="w-3.5 h-3.5"></i>
+                                </button>
+                            </form>
+                            {% endif %}
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+    {% endif %}
+
+</div>
+{% endblock %}

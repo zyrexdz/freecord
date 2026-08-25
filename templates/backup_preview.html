@@ -1,0 +1,139 @@
+{% extends "base.html" %}
+
+{% block title %}Preview Backup - {{ backup.guild_name }}{% endblock %}
+{% block page_title %}In-Browser Backup Hierarchy Inspector{% endblock %}
+
+{% block content %}
+<div class="space-y-6">
+
+    
+    <div class="flex items-center justify-between">
+        <a href="/backups" class="text-xs text-slate-400 hover:text-white">&larr; Back to Backups</a>
+        <div class="flex items-center gap-2">
+            <a href="/backups/{{ backup.backup_uuid }}/download" class="px-3 py-1.5 rounded-lg bg-slate-800 hover:bg-slate-700 text-emerald-400 text-xs font-semibold flex items-center gap-1.5">
+                <i data-lucide="download" class="w-3.5 h-3.5"></i>
+                <span>Download JSON</span>
+            </a>
+        </div>
+    </div>
+
+    
+    <div class="glass-panel rounded-2xl p-6 border border-slate-800">
+        <div class="flex items-center gap-4">
+            {% if backup.icon_url %}
+            <img src="{{ backup.icon_url }}" alt="{{ backup.guild_name }}" class="w-14 h-14 rounded-2xl object-cover border border-slate-700">
+            {% else %}
+            <div class="w-14 h-14 rounded-2xl bg-indigo-600/20 text-indigo-400 flex items-center justify-center font-bold text-xl">
+                {{ backup.guild_name[0]|upper }}
+            </div>
+            {% endif %}
+            <div>
+                <h2 class="text-lg font-bold text-white">{{ backup.guild_name }}</h2>
+                <div class="flex items-center gap-3 text-xs text-slate-400 font-mono mt-0.5">
+                    <span>Backup UUID: {{ backup.backup_uuid }}</span>
+                    <span>&bull;</span>
+                    <span>Created: {{ backup.created_at.strftime('%Y-%m-%d %H:%M:%S UTC') }}</span>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    
+    <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+
+        
+        <div class="glass-panel rounded-2xl p-6 border border-slate-800 space-y-4">
+            <h3 class="font-bold text-sm text-white flex items-center gap-2 border-b border-slate-800 pb-3">
+                <i data-lucide="award" class="w-4 h-4 text-indigo-400"></i>
+                <span>Roles Hierarchy ({{ data.roles|length }})</span>
+            </h3>
+
+            <div class="space-y-2 max-h-[500px] overflow-y-auto pr-1">
+                {% for r in data.roles %}
+                <div class="p-2.5 rounded-xl bg-slate-900/60 border border-slate-800/80 flex items-center justify-between text-xs">
+                    <div class="flex items-center gap-2.5">
+                        <span class="w-3 h-3 rounded-full shrink-0" style="background-color: {{ '#%06x' % r.color if r.color else '#99aab5' }}"></span>
+                        <span class="font-semibold text-slate-200">{{ r.name }}</span>
+                        {% if r.hoist %}
+                        <span class="text-[10px] px-1.5 py-0.5 rounded bg-slate-800 text-slate-400">Hoisted</span>
+                        {% endif %}
+                    </div>
+                    <span class="text-[11px] font-mono text-slate-500">Pos {{ r.position }}</span>
+                </div>
+                {% endfor %}
+            </div>
+        </div>
+
+        
+        <div class="glass-panel rounded-2xl p-6 border border-slate-800 space-y-4">
+            <h3 class="font-bold text-sm text-white flex items-center gap-2 border-b border-slate-800 pb-3">
+                <i data-lucide="hash" class="w-4 h-4 text-sky-400"></i>
+                <span>Categories & Channels ({{ data.channels|length }})</span>
+            </h3>
+
+            <div class="space-y-3 max-h-[500px] overflow-y-auto pr-1">
+                {% for cat in data.categories %}
+                <div class="space-y-1.5">
+                    <div class="px-2 py-1 text-[11px] font-bold uppercase tracking-wider text-slate-400 flex items-center gap-1.5">
+                        <i data-lucide="folder" class="w-3.5 h-3.5 text-amber-400"></i>
+                        <span>{{ cat.name }}</span>
+                    </div>
+
+                    {% for ch in data.channels %}
+                    {% if ch.category_name == cat.name %}
+                    <div class="ml-4 p-2 rounded-lg bg-slate-900/40 border border-slate-800/60 flex items-center justify-between text-xs">
+                        <div class="flex items-center gap-2">
+                            {% if ch.type == 'voice' %}
+                            <i data-lucide="volume-2" class="w-3.5 h-3.5 text-emerald-400"></i>
+                            {% elif ch.type == 'stage' %}
+                            <i data-lucide="mic" class="w-3.5 h-3.5 text-indigo-400"></i>
+                            {% else %}
+                            <i data-lucide="hash" class="w-3.5 h-3.5 text-slate-400"></i>
+                            {% endif %}
+                            <span class="text-slate-200 font-medium">{{ ch.name }}</span>
+                        </div>
+                        <div class="flex items-center gap-1 text-[10px] text-slate-500 font-mono">
+                            <span>{{ ch.overwrites|length }} overwrites</span>
+                        </div>
+                    </div>
+                    {% endif %}
+                    {% endfor %}
+                </div>
+                {% endfor %}
+
+                
+                {% for ch in data.channels %}
+                {% if not ch.category_name %}
+                <div class="p-2 rounded-lg bg-slate-900/40 border border-slate-800/60 flex items-center justify-between text-xs">
+                    <div class="flex items-center gap-2">
+                        <i data-lucide="hash" class="w-3.5 h-3.5 text-slate-400"></i>
+                        <span class="text-slate-200 font-medium">{{ ch.name }}</span>
+                    </div>
+                </div>
+                {% endif %}
+                {% endfor %}
+            </div>
+        </div>
+
+    </div>
+
+    
+    {% if data.emojis %}
+    <div class="glass-panel rounded-2xl p-6 border border-slate-800 space-y-4">
+        <h3 class="font-bold text-sm text-white flex items-center gap-2 border-b border-slate-800 pb-3">
+            <i data-lucide="smile" class="w-4 h-4 text-amber-400"></i>
+            <span>Captured Custom Emojis ({{ data.emojis|length }})</span>
+        </h3>
+        <div class="grid grid-cols-2 sm:grid-cols-4 md:grid-cols-6 lg:grid-cols-8 gap-3">
+            {% for em in data.emojis %}
+            <div class="p-3 rounded-xl bg-slate-900/60 border border-slate-800 flex flex-col items-center justify-center text-center">
+                <img src="{{ em.url }}" alt="{{ em.name }}" class="w-8 h-8 object-contain mb-1">
+                <span class="text-[10px] font-mono text-slate-400 truncate max-w-full">:{{ em.name }}:</span>
+            </div>
+            {% endfor %}
+        </div>
+    </div>
+    {% endif %}
+
+</div>
+{% endblock %}

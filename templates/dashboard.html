@@ -1,0 +1,212 @@
+{% extends "base.html" %}
+
+{% block title %}Dashboard - FreeCord{% endblock %}
+{% block page_title %}Dashboard{% endblock %}
+
+{% block content %}
+<div class="space-y-6">
+
+    {% include "components/network_banner.html" %}
+
+    <div class="glass-panel rounded-3xl p-6 sm:p-7 border border-white/10 space-y-4">
+        <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+            <div>
+                <h3 class="text-base font-bold text-white">Overview</h3>
+                <p class="text-xs text-slate-400 mt-0.5">Everything is running smoothly.</p>
+            </div>
+            
+            <div class="flex items-center gap-2 bg-slate-900/80 px-3.5 py-2 rounded-2xl border border-white/10 text-xs text-slate-300">
+                <span class="text-slate-400 font-medium">Redirect URL:</span>
+                <span class="font-mono text-slate-200 truncate max-w-[200px]">{{ net_info.redirect_uri }}</span>
+                <button onclick="copyToClipboard('{{ net_info.redirect_uri }}', 'Redirect URL copied to clipboard')" 
+                    class="text-indigo-400 hover:text-indigo-300 font-bold ml-1 transition-colors">
+                    Copy
+                </button>
+            </div>
+        </div>
+
+        <div class="grid grid-cols-2 sm:grid-cols-4 gap-3 pt-3 border-t border-white/10 text-xs">
+            <div class="flex items-center gap-2 text-slate-300">
+                <i data-lucide="user-check" class="w-4 h-4 text-emerald-400"></i>
+                <span class="text-slate-400">Members verified:</span>
+                <span class="font-bold text-white">{{ total_verified }}</span>
+            </div>
+            <div class="flex items-center gap-2 text-slate-300">
+                <i data-lucide="users" class="w-4 h-4 text-teal-400"></i>
+                <span class="text-slate-400">Members restored:</span>
+                <span class="font-bold text-white">{{ total_restored }}</span>
+            </div>
+            <div class="flex items-center gap-2 text-slate-300">
+                <i data-lucide="hard-drive" class="w-4 h-4 text-indigo-400"></i>
+                <span class="text-slate-400">Backups:</span>
+                <span class="font-bold text-white">{{ total_backups }}</span>
+            </div>
+            <div class="flex items-center gap-2 text-slate-300">
+                <i data-lucide="shield-alert" class="w-4 h-4 text-rose-400"></i>
+                <span class="text-slate-400">Threats blocked:</span>
+                <span class="font-bold text-white">{{ total_vpns_blocked }}</span>
+            </div>
+        </div>
+    </div>
+
+    <div class="grid grid-cols-1 sm:grid-cols-3 gap-4">
+        <a href="/bots" class="glass-panel glass-panel-hover rounded-3xl p-6 flex items-center justify-between group">
+            <div>
+                <p class="text-xs font-semibold text-slate-400">Bots</p>
+                <h3 class="text-3xl font-extrabold text-white mt-1">{{ total_bots }}</h3>
+                <p class="text-[11px] text-slate-500 mt-1">{{ online_bots_count }} online</p>
+            </div>
+            <div class="w-12 h-12 rounded-2xl bg-sky-500/10 text-sky-400 flex items-center justify-center group-hover:scale-105 transition-transform border border-sky-500/20">
+                <i data-lucide="bot" class="w-6 h-6"></i>
+            </div>
+        </a>
+
+        <a href="/servers" class="glass-panel glass-panel-hover rounded-3xl p-6 flex items-center justify-between group">
+            <div>
+                <p class="text-xs font-semibold text-slate-400">Servers</p>
+                <h3 class="text-3xl font-extrabold text-white mt-1">{{ total_guilds }}</h3>
+                <p class="text-[11px] text-slate-500 mt-1">Connected servers</p>
+            </div>
+            <div class="w-12 h-12 rounded-2xl bg-indigo-500/10 text-indigo-400 flex items-center justify-center group-hover:scale-105 transition-transform border border-indigo-500/20">
+                <i data-lucide="server" class="w-6 h-6"></i>
+            </div>
+        </a>
+
+        <a href="/migrations" class="glass-panel glass-panel-hover rounded-3xl p-6 flex items-center justify-between group">
+            <div>
+                <p class="text-xs font-semibold text-slate-400">Verified Members</p>
+                <h3 class="text-3xl font-extrabold text-white mt-1">{{ total_verified }}</h3>
+                <p class="text-[11px] text-slate-500 mt-1">View members list</p>
+            </div>
+            <div class="w-12 h-12 rounded-2xl bg-emerald-500/10 text-emerald-400 flex items-center justify-center group-hover:scale-105 transition-transform border border-emerald-500/20">
+                <i data-lucide="users" class="w-6 h-6"></i>
+            </div>
+        </a>
+    </div>
+
+    <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+        <div class="lg:col-span-2 space-y-6">
+            <div class="glass-panel rounded-3xl p-6 border border-white/10 space-y-4">
+                <div class="flex items-center justify-between">
+                    <h3 class="text-xs font-bold uppercase tracking-wider text-slate-400">Quick Actions</h3>
+                </div>
+                <div class="grid grid-cols-1 sm:grid-cols-3 gap-3.5">
+                    <a href="/bots/new" class="p-4 rounded-2xl bg-slate-900/60 hover:bg-slate-800 border border-white/5 flex items-center gap-3.5 transition-all hover:border-sky-500/30">
+                        <div class="w-10 h-10 rounded-xl bg-sky-500/10 text-sky-400 flex items-center justify-center shrink-0 border border-sky-500/20">
+                            <i data-lucide="plus" class="w-5 h-5"></i>
+                        </div>
+                        <div>
+                            <p class="text-xs font-bold text-white">Add Bot</p>
+                            <p class="text-[10px] text-slate-400">Connect new bot</p>
+                        </div>
+                    </a>
+
+                    <a href="/backups" class="p-4 rounded-2xl bg-slate-900/60 hover:bg-slate-800 border border-white/5 flex items-center gap-3.5 transition-all hover:border-indigo-500/30">
+                        <div class="w-10 h-10 rounded-xl bg-indigo-500/10 text-indigo-400 flex items-center justify-center shrink-0 border border-indigo-500/20">
+                            <i data-lucide="archive" class="w-5 h-5"></i>
+                        </div>
+                        <div>
+                            <p class="text-xs font-bold text-white">Backup Server</p>
+                            <p class="text-[10px] text-slate-400">Save roles and channels</p>
+                        </div>
+                    </a>
+
+                    <a href="/migrations" class="p-4 rounded-2xl bg-slate-900/60 hover:bg-slate-800 border border-white/5 flex items-center gap-3.5 transition-all hover:border-emerald-500/30">
+                        <div class="w-10 h-10 rounded-xl bg-emerald-500/10 text-emerald-400 flex items-center justify-center shrink-0 border border-emerald-500/20">
+                            <i data-lucide="user-plus" class="w-5 h-5"></i>
+                        </div>
+                        <div>
+                            <p class="text-xs font-bold text-white">Restore Members</p>
+                            <p class="text-[10px] text-slate-400">Restore verified users</p>
+                        </div>
+                    </a>
+                </div>
+            </div>
+
+            <div class="glass-panel rounded-3xl p-6 border border-white/10">
+                <div class="flex items-center justify-between mb-4">
+                    <h3 class="text-xs font-bold uppercase tracking-wider text-slate-400">Recent Activity</h3>
+                    <a href="/analytics" class="text-xs font-bold text-indigo-400 hover:text-indigo-300 transition-colors">
+                        View all
+                    </a>
+                </div>
+                <div class="space-y-2">
+                    {% for log in recent_logs %}
+                    <div class="px-4 py-3 rounded-2xl bg-slate-900/50 border border-white/5 flex items-center justify-between text-xs hover:border-white/10 transition-colors">
+                        <div class="flex items-center gap-3 overflow-hidden">
+                            {% if log.event_type == 'VERIFY_SUCCESS' %}
+                            <span class="w-2.5 h-2.5 rounded-full bg-emerald-400 shrink-0 shadow-sm shadow-emerald-400/50"></span>
+                            {% elif log.event_type == 'VERIFY_BLOCKED' %}
+                            <span class="w-2.5 h-2.5 rounded-full bg-rose-400 shrink-0 shadow-sm shadow-rose-400/50"></span>
+                            {% else %}
+                            <span class="w-2.5 h-2.5 rounded-full bg-sky-400 shrink-0"></span>
+                            {% endif %}
+                            <span class="text-slate-200 truncate">{{ log.description }}</span>
+                        </div>
+                        <span class="text-[10px] font-mono text-slate-500 shrink-0">{{ log.created_at.strftime('%H:%M') }}</span>
+                    </div>
+                    {% else %}
+                    <div class="py-10 text-center text-xs text-slate-400">
+                        <p class="font-bold text-white text-sm">No activity recorded yet</p>
+                        <p class="text-slate-500 mt-1">Logs will show up here as users verify.</p>
+                    </div>
+                    {% endfor %}
+                </div>
+            </div>
+        </div>
+
+        <div class="space-y-6">
+            <div class="glass-panel rounded-3xl p-6 border border-white/10 space-y-4">
+                <h3 class="text-xs font-bold uppercase tracking-wider text-slate-400 flex items-center gap-2">
+                    <i data-lucide="help-circle" class="w-4 h-4 text-indigo-400"></i>
+                    <span>Quick Guide</span>
+                </h3>
+                
+                <div class="space-y-3 text-xs">
+                    <div class="p-3 rounded-2xl bg-slate-900/60 border border-white/5 space-y-1">
+                        <p class="font-bold text-white flex items-center gap-1.5">
+                            <span class="w-2 h-2 rounded-full bg-emerald-400"></span>
+                            <span>Restore Members</span>
+                        </p>
+                        <p class="text-[11px] text-slate-400 leading-relaxed">
+                            Pulls your verified members into any target server automatically.
+                        </p>
+                    </div>
+
+                    <div class="p-3 rounded-2xl bg-slate-900/60 border border-white/5 space-y-1">
+                        <p class="font-bold text-white flex items-center gap-1.5">
+                            <span class="w-2 h-2 rounded-full bg-indigo-400"></span>
+                            <span>Server Settings</span>
+                        </p>
+                        <p class="text-[11px] text-slate-400 leading-relaxed">
+                            Sends verification message to your channel and configures auto roles.
+                        </p>
+                    </div>
+
+                    <div class="p-3 rounded-2xl bg-slate-900/60 border border-white/5 space-y-1">
+                        <p class="font-bold text-white flex items-center gap-1.5">
+                            <span class="w-2 h-2 rounded-full bg-rose-400"></span>
+                            <span>Blacklist & Ban</span>
+                        </p>
+                        <p class="text-[11px] text-slate-400 leading-relaxed">
+                            Bans user from Discord and permanently blocks their ID and IP from verifying.
+                        </p>
+                    </div>
+
+                    <div class="p-3 rounded-2xl bg-slate-900/60 border border-white/5 space-y-1">
+                        <p class="font-bold text-white flex items-center gap-1.5">
+                            <span class="w-2 h-2 rounded-full bg-teal-400"></span>
+                            <span>Sync Channels</span>
+                        </p>
+                        <p class="text-[11px] text-slate-400 leading-relaxed">
+                            Fetches servers, text channels, and roles live from Discord.
+                        </p>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+    </div>
+
+</div>
+{% endblock %}

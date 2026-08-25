@@ -1,0 +1,191 @@
+/* FreeCord - Apple-Inspired Refined Dark UI */
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600&display=swap');
+
+:root {
+    --apple-dark: #07090e;
+    --apple-surface: rgba(15, 20, 34, 0.72);
+    --apple-border: rgba(255, 255, 255, 0.08);
+    --apple-accent: #5865F2;
+    --apple-emerald: #10B981;
+    --apple-amber: #F59E0B;
+    --apple-rose: #F43F5E;
+}
+
+* {
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+}
+
+body {
+    font-family: -apple-system, BlinkMacSystemFont, 'Inter', 'SF Pro Display', 'Segoe UI', Roboto, sans-serif;
+    background-color: var(--apple-dark);
+    color: #f1f5f9;
+    overflow-x: hidden;
+}
+
+code, pre, .font-mono {
+    font-family: 'JetBrains Mono', SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+}
+
+/* Apple Frosted Glass */
+.glass-panel {
+    background: var(--apple-surface);
+    backdrop-filter: blur(24px) saturate(180%);
+    -webkit-backdrop-filter: blur(24px) saturate(180%);
+    border: 1px solid var(--apple-border);
+}
+
+.glass-panel-hover {
+    transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+}
+.glass-panel-hover:hover {
+    background: rgba(20, 27, 46, 0.85);
+    border-color: rgba(255, 255, 255, 0.16);
+    transform: translateY(-2px);
+    box-shadow: 0 20px 40px -15px rgba(0, 0, 0, 0.6), 0 0 20px rgba(88, 101, 242, 0.1);
+}
+
+/* Apple-style Smooth Buttons & Springs */
+button, a {
+    transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+button:active, a:active {
+    transform: scale(0.98);
+}
+
+/* Refined Minimalist Scrollbars */
+::-webkit-scrollbar {
+    width: 5px;
+    height: 5px;
+}
+::-webkit-scrollbar-track {
+    background: transparent;
+}
+::-webkit-scrollbar-thumb {
+    background: rgba(255, 255, 255, 0.15);
+    border-radius: 9999px;
+}
+::-webkit-scrollbar-thumb:hover {
+    background: rgba(255, 255, 255, 0.3);
+}
+
+/* Terminal Console View */
+.terminal-logs {
+    background: #05070c;
+    border: 1px solid rgba(255, 255, 255, 0.06);
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 0.8rem;
+    line-height: 1.6;
+}
+
+/* Modern Smooth Keyframe Animations */
+@keyframes fadeIn {
+    from {
+        opacity: 0;
+    }
+    to {
+        opacity: 1;
+    }
+}
+
+@keyframes scaleIn {
+    from {
+        opacity: 0;
+        transform: scale(0.95) translateY(10px);
+    }
+    to {
+        opacity: 1;
+        transform: scale(1) translateY(0);
+    }
+}
+
+@keyframes slideUp {
+    from {
+        opacity: 0;
+        transform: translateY(14px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+@keyframes floatGentle {
+    0%, 100% {
+        transform: translateY(0);
+    }
+    50% {
+        transform: translateY(-4px);
+    }
+}
+
+@keyframes pulseGlow {
+    0%, 100% {
+        box-shadow: 0 0 15px rgba(88, 101, 242, 0.2);
+    }
+    50% {
+        box-shadow: 0 0 25px rgba(88, 101, 242, 0.4);
+    }
+}
+
+.animate-fade-in {
+    animation: fadeIn 0.25s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+}
+
+.animate-scale-in {
+    animation: scaleIn 0.28s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+}
+
+.animate-slide-up {
+    animation: slideUp 0.32s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+}
+
+.animate-float {
+    animation: floatGentle 3s ease-in-out infinite;
+}
+
+.animate-glow {
+    animation: pulseGlow 2.5s ease-in-out infinite;
+}
+
+/* Role Hierarchy Drag Animation */
+@keyframes roleSlideUpDrag {
+    0% {
+        transform: translateY(32px);
+        border-color: rgba(244, 63, 94, 0.6);
+        box-shadow: 0 0 10px rgba(244, 63, 94, 0.2);
+    }
+    30% {
+        transform: translateY(32px) scale(0.98);
+        border-color: rgba(244, 63, 94, 0.8);
+    }
+    55% {
+        transform: translateY(-4px) scale(1.02);
+        border-color: rgba(16, 185, 129, 0.9);
+        box-shadow: 0 0 20px rgba(16, 185, 129, 0.4);
+    }
+    75%, 100% {
+        transform: translateY(0) scale(1);
+        border-color: rgba(16, 185, 129, 0.6);
+        box-shadow: 0 0 12px rgba(16, 185, 129, 0.25);
+    }
+}
+
+@keyframes verifiedRolePushDown {
+    0%, 30% {
+        transform: translateY(-32px);
+    }
+    55%, 100% {
+        transform: translateY(0);
+    }
+}
+
+.animate-bot-role-drag {
+    animation: roleSlideUpDrag 3.5s cubic-bezier(0.34, 1.56, 0.64, 1) infinite;
+}
+
+.animate-verified-role-push {
+    animation: verifiedRolePushDown 3.5s cubic-bezier(0.34, 1.56, 0.64, 1) infinite;
+}
+

@@ -1,0 +1,458 @@
+{% extends "base.html" %}
+
+{% block title %}Bots - FreeCord{% endblock %}
+{% block page_title %}Bots{% endblock %}
+
+{% block content %}
+<div class="space-y-6">
+
+    <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+        <div>
+            <h2 class="text-lg font-bold text-white">Discord Bots</h2>
+            <p class="text-xs text-slate-400 mt-0.5">Manage your bots and server connections.</p>
+        </div>
+        <div class="flex items-center gap-2">
+            <a href="/bots/sync"
+                class="px-4 py-2.5 bg-slate-900 hover:bg-slate-800 border border-white/10 text-slate-300 hover:text-white text-xs font-semibold rounded-2xl flex items-center justify-center gap-2 transition-all">
+                <i data-lucide="rotate-cw" class="w-4 h-4 text-emerald-400"></i>
+                <span>Refresh Servers</span>
+            </a>
+            <a href="/bots/new"
+                class="px-4 py-2.5 bg-indigo-600 hover:bg-indigo-500 text-white text-xs font-semibold rounded-2xl shadow-lg shadow-indigo-600/25 flex items-center justify-center gap-2 transition-all">
+                <i data-lucide="plus" class="w-4 h-4"></i>
+                <span>Add Bot</span>
+            </a>
+        </div>
+    </div>
+
+    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+        {% for item in bot_cards %}
+        {% set bot = item.record %}
+        <div class="glass-panel glass-panel-hover rounded-3xl p-6 flex flex-col justify-between relative overflow-hidden border border-white/10">
+            <div>
+                <div class="flex items-start justify-between gap-3 mb-4">
+                    <div class="flex items-center gap-3">
+                        {% if bot.avatar_url %}
+                        <img src="{{ bot.avatar_url }}" alt="{{ bot.name }}" class="w-12 h-12 rounded-2xl object-cover border border-white/10">
+                        {% else %}
+                        <div class="w-12 h-12 rounded-2xl bg-gradient-to-tr from-sky-500 to-indigo-600 flex items-center justify-center text-lg font-bold text-white shadow-md">
+                            {{ bot.name[0]|upper }}
+                        </div>
+                        {% endif %}
+                        <div>
+                            <h3 class="font-bold text-base text-white truncate">{{ bot.name }}</h3>
+                            <p class="text-[11px] font-mono text-slate-400">ID: {{ bot.client_id }}</p>
+                        </div>
+                    </div>
+
+                    {% if item.is_live %}
+                    <span class="px-2.5 py-1 rounded-full text-[10px] font-extrabold bg-emerald-500/10 text-emerald-400 border border-emerald-500/30 flex items-center gap-1.5 shrink-0">
+                        <span class="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse"></span>
+                        ONLINE
+                    </span>
+                    {% elif bot.status == 'CONNECTING' %}
+                    <span class="px-2.5 py-1 rounded-full text-[10px] font-extrabold bg-sky-500/10 text-sky-400 border border-sky-500/30 flex items-center gap-1.5 shrink-0 animate-pulse">
+                        CONNECTING
+                    </span>
+                    {% else %}
+                    <span class="px-2.5 py-1 rounded-full text-[10px] font-extrabold bg-rose-500/10 text-rose-400 border border-rose-500/30 flex items-center gap-1.5 shrink-0">
+                        OFFLINE
+                    </span>
+                    {% endif %}
+                </div>
+
+                <div class="space-y-2 text-xs mb-4">
+                    <div class="flex justify-between text-slate-400">
+                        <span>Activity:</span>
+                        <span class="text-slate-200 font-medium truncate max-w-[160px]">{{ bot.custom_status or 'Watching' }}</span>
+                    </div>
+                    <div class="flex justify-between text-slate-400">
+                        <span>Servers:</span>
+                        <span class="text-sky-400 font-bold">{{ item.guilds_count }} Servers</span>
+                    </div>
+                    <div class="flex justify-between text-slate-400">
+                        <span>Verified Members:</span>
+                        <span class="text-emerald-400 font-bold">{{ item.token_count }}</span>
+                    </div>
+                </div>
+
+                {% if bot.error_message %}
+                <div class="p-2.5 rounded-2xl bg-rose-500/10 border border-rose-500/20 text-rose-400 text-[11px] mb-4">
+                    <strong>Error:</strong> {{ bot.error_message }}
+                </div>
+                {% endif %}
+            </div>
+
+            <div class="space-y-2 pt-2 border-t border-white/5">
+                <div class="grid grid-cols-2 gap-1.5">
+                    <a href="/bots/{{ bot.id }}/servers" class="py-2 px-2.5 rounded-2xl bg-indigo-600/20 hover:bg-indigo-600/30 text-indigo-300 border border-indigo-500/30 text-xs font-semibold flex items-center justify-center gap-1.5 transition-colors">
+                        <i data-lucide="server" class="w-3.5 h-3.5"></i>
+                        <span>Servers ({{ item.guilds_count }})</span>
+                    </a>
+                    <button type="button"
+                        data-bot-id="{{ bot.id }}"
+                        data-bot-name="{{ bot.name }}"
+                        data-guilds='{{ item.guilds|tojson }}'
+                        data-collaborators='{{ item.collaborators|tojson }}'
+                        onclick="openCollaboratorsModalFromBtn(this)"
+                        class="py-2 px-2.5 rounded-2xl bg-white/5 hover:bg-white/10 text-slate-200 border border-white/10 text-xs font-semibold flex items-center justify-center gap-1.5 transition-colors">
+                        <i data-lucide="users" class="w-3.5 h-3.5 text-sky-400"></i>
+                        <span>Team ({{ item.collaborators_count }})</span>
+                    </button>
+                </div>
+
+                <div class="grid grid-cols-4 gap-1.5">
+                    <button type="button" onclick="openInviteModal('{{ bot.name }}', '{{ item.invite_url }}')" title="Invite bot"
+                        class="py-1.5 px-1.5 bg-indigo-600/20 hover:bg-indigo-600/30 border border-indigo-500/30 text-indigo-300 rounded-xl text-xs font-semibold flex items-center justify-center gap-1 transition-colors">
+                        <i data-lucide="send" class="w-3.5 h-3.5 text-sky-400"></i>
+                        <span>Invite</span>
+                    </button>
+
+                    <a href="/bots/{{ bot.id }}/sync" title="Sync servers"
+                        class="py-1.5 px-1.5 bg-slate-900 hover:bg-slate-800 border border-white/5 text-slate-300 rounded-xl text-xs font-medium flex items-center justify-center gap-1 transition-colors">
+                        <i data-lucide="refresh-cw" class="w-3.5 h-3.5 text-emerald-400"></i>
+                        <span>Sync</span>
+                    </a>
+
+                    <form action="/bots/{{ bot.id }}/restart" method="POST" class="inline m-0">
+                        <button type="submit" title="Restart Bot"
+                            class="w-full py-1.5 px-1.5 bg-slate-900 hover:bg-slate-800 border border-white/5 text-slate-300 rounded-xl text-xs font-medium flex items-center justify-center gap-1 transition-colors">
+                            <i data-lucide="rotate-cw" class="w-3.5 h-3.5 text-amber-400"></i>
+                            <span>Reboot</span>
+                        </button>
+                    </form>
+
+                    <button type="button" onclick="openDeleteModal('{{ bot.id }}', '{{ bot.name }}')" title="Delete Bot"
+                        class="py-1.5 px-1.5 bg-rose-500/10 hover:bg-rose-500/20 border border-rose-500/30 text-rose-400 rounded-xl text-xs font-medium flex items-center justify-center gap-1 transition-colors">
+                        <i data-lucide="trash-2" class="w-3.5 h-3.5"></i>
+                        <span>Delete</span>
+                    </button>
+                </div>
+            </div>
+        </div>
+        {% else %}
+        <div class="col-span-full py-12 text-center glass-panel rounded-3xl border border-white/10 p-8">
+            <div class="w-14 h-14 rounded-2xl bg-indigo-500/10 text-indigo-400 flex items-center justify-center mx-auto mb-4 border border-indigo-500/20">
+                <i data-lucide="bot" class="w-7 h-7"></i>
+            </div>
+            <h3 class="text-base font-bold text-white">No Bots Connected</h3>
+            <p class="text-xs text-slate-400 max-w-sm mx-auto mt-1 mb-4">
+                Add your first Discord bot to start verifying members and taking backups.
+            </p>
+            <div class="flex items-center justify-center gap-3">
+                <a href="/bots/new"
+                    class="px-4 py-2 bg-indigo-600 hover:bg-indigo-500 text-white text-xs font-bold rounded-2xl transition-all">
+                    Add Bot
+                </a>
+                <a href="/setup-guide" class="px-4 py-2 bg-white/5 hover:bg-white/10 text-slate-300 text-xs font-semibold rounded-2xl transition-all">
+                    Setup Guide
+                </a>
+            </div>
+        </div>
+        {% endfor %}
+    </div>
+
+</div>
+
+<div id="collaborators-modal-overlay" class="fixed inset-0 z-50 bg-black/60 backdrop-blur-md flex items-center justify-center p-4 hidden">
+    <div class="glass-panel w-full max-w-2xl rounded-3xl p-6 shadow-2xl border border-white/10 relative text-left max-h-[90vh] flex flex-col animate-scale-in">
+        <div class="flex items-center justify-between border-b border-white/10 pb-4 mb-4 shrink-0">
+            <div class="flex items-center gap-3">
+                <div class="w-9 h-9 rounded-2xl bg-sky-500/10 text-sky-400 flex items-center justify-center border border-sky-500/20">
+                    <i data-lucide="users" class="w-5 h-5"></i>
+                </div>
+                <div>
+                    <h3 class="font-bold text-sm text-white">Bot Team & Permissions</h3>
+                    <p id="collab-bot-title" class="text-[11px] text-slate-400">Add helpers and configure permission checkmarks</p>
+                </div>
+            </div>
+            <button onclick="closeCollaboratorsModal()" class="w-8 h-8 rounded-full bg-white/5 hover:bg-white/10 flex items-center justify-center text-slate-400 hover:text-white transition-colors">
+                <i data-lucide="x" class="w-4 h-4"></i>
+            </button>
+        </div>
+
+        <div class="overflow-y-auto pr-1 space-y-5 text-xs">
+            <div class="space-y-2">
+                <h4 class="font-bold text-slate-200 flex items-center gap-1.5">
+                    <i data-lucide="shield" class="w-3.5 h-3.5 text-indigo-400"></i>
+                    <span>Current Team Members</span>
+                </h4>
+                <div id="collab-list-container" class="space-y-2">
+                </div>
+            </div>
+
+            <form id="collab-add-form" action="" method="POST" class="p-4 rounded-2xl bg-slate-900/80 border border-white/10 space-y-4">
+                <h4 class="font-bold text-white flex items-center gap-1.5">
+                    <i data-lucide="user-plus" class="w-3.5 h-3.5 text-emerald-400"></i>
+                    <span>Add / Update Team Member</span>
+                </h4>
+
+                <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                    <div>
+                        <label class="block font-semibold text-slate-300 mb-1">Username / User</label>
+                        <input type="text" name="username" id="collab-username-input" required placeholder="e.g. alex, helper_bot, moderator"
+                            class="w-full px-3 py-2 bg-slate-950 border border-slate-700 rounded-xl text-slate-200 placeholder-slate-600 focus:outline-none focus:border-indigo-500">
+                    </div>
+                    <div>
+                        <label class="block font-semibold text-slate-300 mb-1">Role Title</label>
+                        <select name="role_label" class="w-full px-3 py-2 bg-slate-950 border border-slate-700 rounded-xl text-slate-200 focus:outline-none focus:border-indigo-500">
+                            <option value="Helper">Helper</option>
+                            <option value="Server Admin">Server Admin</option>
+                            <option value="Moderator">Moderator</option>
+                            <option value="Backup Manager">Backup Manager</option>
+                            <option value="Co-Owner">Co-Owner</option>
+                        </select>
+                    </div>
+                </div>
+
+                <div class="space-y-2">
+                    <label class="block font-bold text-white">Action Permissions</label>
+                    <div class="grid grid-cols-1 sm:grid-cols-2 gap-2 text-[11px]">
+                        <label class="flex items-center gap-2 p-2.5 rounded-xl bg-slate-950/60 border border-white/5 cursor-pointer hover:border-indigo-500/40 transition-colors">
+                            <input type="checkbox" name="can_manage_backups" value="true" checked class="w-4 h-4 rounded bg-slate-900 border-slate-700 text-indigo-600 focus:ring-0">
+                            <div>
+                                <span class="font-semibold text-slate-200 block">Manage Backups</span>
+                                <span class="text-slate-400 text-[10px]">Create & restore server backups</span>
+                            </div>
+                        </label>
+
+                        <label class="flex items-center gap-2 p-2.5 rounded-xl bg-slate-950/60 border border-white/5 cursor-pointer hover:border-indigo-500/40 transition-colors">
+                            <input type="checkbox" name="can_start_migrations" value="true" checked class="w-4 h-4 rounded bg-slate-900 border-slate-700 text-indigo-600 focus:ring-0">
+                            <div>
+                                <span class="font-semibold text-slate-200 block">Start Migrations</span>
+                                <span class="text-slate-400 text-[10px]">Pull verified members into servers</span>
+                            </div>
+                        </label>
+
+                        <label class="flex items-center gap-2 p-2.5 rounded-xl bg-slate-950/60 border border-white/5 cursor-pointer hover:border-indigo-500/40 transition-colors">
+                            <input type="checkbox" name="can_view_member_details" value="true" checked class="w-4 h-4 rounded bg-slate-900 border-slate-700 text-indigo-600 focus:ring-0">
+                            <div>
+                                <span class="font-semibold text-slate-200 block">View Member Info</span>
+                                <span class="text-slate-400 text-[10px]">Inspect IPs, country, and devices</span>
+                            </div>
+                        </label>
+
+                        <label class="flex items-center gap-2 p-2.5 rounded-xl bg-slate-950/60 border border-white/5 cursor-pointer hover:border-indigo-500/40 transition-colors">
+                            <input type="checkbox" name="can_manage_blacklist" value="true" checked class="w-4 h-4 rounded bg-slate-900 border-slate-700 text-indigo-600 focus:ring-0">
+                            <div>
+                                <span class="font-semibold text-slate-200 block">Manage Blacklist</span>
+                                <span class="text-slate-400 text-[10px]">Block & unblock members</span>
+                            </div>
+                        </label>
+
+                        <label class="flex items-center gap-2 p-2.5 rounded-xl bg-slate-950/60 border border-white/5 cursor-pointer hover:border-indigo-500/40 transition-colors">
+                            <input type="checkbox" name="can_manage_settings" value="true" class="w-4 h-4 rounded bg-slate-900 border-slate-700 text-indigo-600 focus:ring-0">
+                            <div>
+                                <span class="font-semibold text-slate-200 block">Security Settings</span>
+                                <span class="text-slate-400 text-[10px]">Edit anti-vpn, captcha & firewall</span>
+                            </div>
+                        </label>
+
+                        <label class="flex items-center gap-2 p-2.5 rounded-xl bg-slate-950/60 border border-white/5 cursor-pointer hover:border-indigo-500/40 transition-colors">
+                            <input type="checkbox" name="can_export_tokens" value="true" class="w-4 h-4 rounded bg-slate-900 border-slate-700 text-indigo-600 focus:ring-0">
+                            <div>
+                                <span class="font-semibold text-slate-200 block">Export Tokens</span>
+                                <span class="text-slate-400 text-[10px]">Download decrypted access tokens</span>
+                            </div>
+                        </label>
+                    </div>
+                </div>
+
+                <div class="space-y-2">
+                    <label class="block font-bold text-white">Allowed Discord Servers</label>
+                    <div id="collab-servers-checklist" class="p-2.5 rounded-xl bg-slate-950/60 border border-white/5 space-y-1.5 max-h-36 overflow-y-auto">
+                    </div>
+                </div>
+
+                <div class="flex justify-end pt-1">
+                    <button type="submit" class="px-5 py-2 bg-indigo-600 hover:bg-indigo-500 text-white font-bold rounded-xl text-xs shadow-lg shadow-indigo-600/25 transition-all">
+                        Save Team Member
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+<div id="delete-modal-overlay" class="fixed inset-0 z-50 bg-black/60 backdrop-blur-md flex items-center justify-center p-4 hidden">
+    <div class="glass-panel w-full max-w-sm rounded-3xl p-6 shadow-2xl border border-rose-500/20 text-center relative">
+        <div class="w-12 h-12 rounded-2xl bg-rose-500/10 text-rose-400 flex items-center justify-center mx-auto mb-3 border border-rose-500/20">
+            <i data-lucide="trash-2" class="w-6 h-6"></i>
+        </div>
+        <h3 class="text-base font-bold text-white">Delete Bot</h3>
+        <p class="text-xs text-slate-300 mt-1.5 leading-relaxed">
+            Are you sure you want to delete <strong id="delete-bot-name" class="text-white"></strong>?
+        </p>
+
+        <div class="grid grid-cols-2 gap-2.5 mt-5">
+            <button onclick="closeDeleteModal()" class="py-2.5 px-4 rounded-2xl bg-white/10 hover:bg-white/15 text-slate-200 text-xs font-medium transition-colors">
+                Cancel
+            </button>
+            <form id="delete-bot-form" action="" method="POST" class="m-0">
+                <button type="submit" class="w-full py-2.5 px-4 rounded-2xl bg-rose-600 hover:bg-rose-500 text-white text-xs font-bold shadow-lg shadow-rose-600/25 transition-all">
+                    Delete
+                </button>
+            </form>
+        </div>
+    </div>
+</div>
+
+<script>
+    function openCollaboratorsModalFromBtn(btn) {
+        const botId = btn.getAttribute('data-bot-id');
+        const botName = btn.getAttribute('data-bot-name');
+        let guilds = [];
+        let collaborators = [];
+        try {
+            const rawG = btn.getAttribute('data-guilds');
+            if (rawG) guilds = JSON.parse(rawG);
+        } catch(e) { console.error("Guilds parse error", e); }
+        try {
+            const rawC = btn.getAttribute('data-collaborators');
+            if (rawC) collaborators = JSON.parse(rawC);
+        } catch(e) { console.error("Collaborators parse error", e); }
+        openCollaboratorsModal(botId, botName, guilds, collaborators);
+    }
+
+    function openCollaboratorsModal(botId, botName, guilds, collaborators) {
+        document.getElementById('collab-bot-title').textContent = `Manage helper permissions for ${botName}`;
+        document.getElementById('collab-add-form').action = `/bots/${botId}/collaborators/add`;
+        
+        const listCont = document.getElementById('collab-list-container');
+        listCont.innerHTML = '';
+
+        if (!collaborators || collaborators.length === 0) {
+            listCont.innerHTML = '<div class="p-3 rounded-xl bg-slate-900/40 border border-white/5 text-slate-400 text-center text-xs">No team members added yet. Add your first helper below.</div>';
+        } else {
+            collaborators.forEach(c => {
+                const item = document.createElement('div');
+                item.className = 'p-3 rounded-xl bg-slate-900/90 border border-white/5 flex items-center justify-between gap-3';
+                
+                const pills = [];
+                if (c.can_manage_backups) pills.push('Backups');
+                if (c.can_start_migrations) pills.push('Migrations');
+                if (c.can_view_member_details) pills.push('Member Info');
+                if (c.can_manage_blacklist) pills.push('Blacklist');
+                if (c.can_manage_settings) pills.push('Settings');
+                if (c.can_export_tokens) pills.push('Export Tokens');
+
+                const serverScope = c.allowed_guilds && c.allowed_guilds.includes('ALL') ? 'All Servers' : `${c.allowed_guilds.length} Servers`;
+
+                item.innerHTML = `
+                    <div>
+                        <div class="flex items-center gap-2">
+                            <span class="font-bold text-white text-xs">${c.username}</span>
+                            <span class="px-2 py-0.5 rounded-md text-[10px] font-bold bg-indigo-500/20 text-indigo-300 border border-indigo-500/30">${c.role_label}</span>
+                            <span class="px-2 py-0.5 rounded-md text-[10px] font-bold bg-emerald-500/10 text-emerald-400 border border-emerald-500/20">${serverScope}</span>
+                        </div>
+                        <div class="flex flex-wrap gap-1 mt-1.5">
+                            ${pills.map(p => `<span class="px-1.5 py-0.5 rounded text-[9px] bg-white/5 text-slate-300 border border-white/5">${p}</span>`).join('')}
+                        </div>
+                    </div>
+                    <form action="/bots/${botId}/collaborators/${c.id}/delete" method="POST" class="m-0">
+                        <button type="submit" class="p-1.5 rounded-lg bg-rose-500/10 hover:bg-rose-500/20 text-rose-400 text-xs transition-colors" title="Remove member">
+                            <i data-lucide="trash-2" class="w-3.5 h-3.5"></i>
+                        </button>
+                    </form>
+                `;
+                listCont.appendChild(item);
+            });
+        }
+
+        const checklist = document.getElementById('collab-servers-checklist');
+        checklist.innerHTML = `
+            <label class="flex items-center gap-2 p-1.5 rounded-lg hover:bg-white/5 cursor-pointer text-xs">
+                <input type="checkbox" name="allowed_guilds" value="ALL" checked class="w-3.5 h-3.5 rounded bg-slate-900 border-slate-700 text-indigo-600 focus:ring-0">
+                <span class="font-bold text-emerald-400">All Servers (Global Access)</span>
+            </label>
+        `;
+
+        if (guilds && guilds.length > 0) {
+            guilds.forEach(g => {
+                const label = document.createElement('label');
+                label.className = 'flex items-center gap-2 p-1.5 rounded-lg hover:bg-white/5 cursor-pointer text-xs';
+                label.innerHTML = `
+                    <input type="checkbox" name="allowed_guilds" value="${g.id}" class="w-3.5 h-3.5 rounded bg-slate-900 border-slate-700 text-indigo-600 focus:ring-0">
+                    <span class="text-slate-300">${g.name} <span class="text-[10px] text-slate-500 font-mono">(${g.id})</span></span>
+                `;
+                checklist.appendChild(label);
+            });
+        }
+
+        document.getElementById('collaborators-modal-overlay').classList.remove('hidden');
+        if (window.lucide) lucide.createIcons();
+    }
+
+    function closeCollaboratorsModal() {
+        document.getElementById('collaborators-modal-overlay').classList.add('hidden');
+    }
+
+    function openInviteModal(botName, inviteUrl) {
+        document.getElementById('invite-bot-modal-name').textContent = botName;
+        document.getElementById('invite-modal-url-input').value = inviteUrl;
+        document.getElementById('invite-modal-open-link').href = inviteUrl;
+        document.getElementById('invite-bot-modal-overlay').classList.remove('hidden');
+        if (window.lucide) lucide.createIcons();
+    }
+
+    function closeInviteModal() {
+        document.getElementById('invite-bot-modal-overlay').classList.add('hidden');
+    }
+
+    function openDeleteModal(botId, botName) {
+        document.getElementById('delete-bot-name').textContent = botName;
+        document.getElementById('delete-bot-form').action = '/bots/' + botId + '/delete';
+        document.getElementById('delete-modal-overlay').classList.remove('hidden');
+        if (window.lucide) lucide.createIcons();
+    }
+
+    function closeDeleteModal() {
+        document.getElementById('delete-modal-overlay').classList.add('hidden');
+    }
+</script>
+
+<div id="invite-bot-modal-overlay" class="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/80 backdrop-blur-md hidden animate-fade-in">
+    <div class="relative w-full max-w-xl glass-panel rounded-3xl p-6 sm:p-7 border border-white/10 shadow-2xl space-y-4 max-h-[90vh] overflow-y-auto animate-scale-in">
+        <div class="flex items-center justify-between border-b border-white/10 pb-3">
+            <div class="flex items-center gap-3">
+                <div class="w-10 h-10 rounded-2xl bg-indigo-500/20 text-indigo-400 flex items-center justify-center border border-indigo-500/30">
+                    <i data-lucide="send" class="w-5 h-5"></i>
+                </div>
+                <div>
+                    <h3 class="text-base font-bold text-white">Invite <span id="invite-bot-modal-name" class="text-indigo-400"></span></h3>
+                    <p class="text-xs text-slate-400">Pre-configured Discord Administrator Invite</p>
+                </div>
+            </div>
+            <button type="button" onclick="closeInviteModal()" class="p-2 rounded-xl text-slate-400 hover:text-white hover:bg-white/5 transition-colors">
+                <i data-lucide="x" class="w-5 h-5"></i>
+            </button>
+        </div>
+
+        {% include "components/role_hierarchy_demo.html" %}
+
+        <div class="p-3.5 rounded-2xl bg-slate-900/80 border border-white/10 space-y-2 text-xs">
+            <label class="font-semibold text-slate-300">Invite Link (Permissions = 8 Administrator):</label>
+            <div class="flex items-center gap-2">
+                <input type="text" id="invite-modal-url-input" readonly class="flex-1 px-3.5 py-2 bg-slate-950 border border-slate-700 rounded-xl font-mono text-xs text-emerald-400 focus:outline-none select-all">
+                <button type="button" onclick="copyToClipboard(document.getElementById('invite-modal-url-input').value, 'Invite link copied!')" class="px-3.5 py-2 bg-white/10 hover:bg-white/20 text-white rounded-xl text-xs font-semibold flex items-center gap-1.5 transition-colors shrink-0">
+                    <i data-lucide="copy" class="w-3.5 h-3.5"></i>
+                    <span>Copy</span>
+                </button>
+            </div>
+        </div>
+
+        <div class="pt-2 flex items-center justify-end gap-3">
+            <button type="button" onclick="closeInviteModal()" class="px-4 py-2 rounded-xl bg-white/5 hover:bg-white/10 text-slate-300 text-xs font-medium transition-colors">
+                Close
+            </button>
+            <a id="invite-modal-open-link" href="#" target="_blank" class="px-5 py-2 rounded-xl bg-emerald-600 hover:bg-emerald-500 text-white text-xs font-bold flex items-center gap-2 shadow-lg shadow-emerald-600/25 transition-all">
+                <i data-lucide="external-link" class="w-4 h-4"></i>
+                <span>Open Discord Authorize</span>
+            </a>
+        </div>
+    </div>
+</div>
+
+{% include "components/help_modals.html" %}
+
+{% endblock %}

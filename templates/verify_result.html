@@ -1,0 +1,78 @@
+<!DOCTYPE html>
+<html lang="en" class="dark">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{{ title }} - FreeCord</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://unpkg.com/lucide@latest"></script>
+    <link rel="stylesheet" href="/static/css/custom.css">
+</head>
+<body class="bg-[#0b0f19] text-slate-100 min-h-screen flex items-center justify-center p-4 selection:bg-discord-blurple">
+
+    <div class="w-full max-w-md">
+        <div class="glass-panel rounded-3xl p-8 shadow-2xl border border-slate-700/80 text-center relative overflow-hidden backdrop-blur-xl">
+            
+            {% if success %}
+            <div class="w-20 h-20 rounded-3xl bg-emerald-500/10 border-2 border-emerald-500/30 text-emerald-400 flex items-center justify-center mx-auto mb-5 shadow-xl shadow-emerald-500/10 animate-bounce">
+                <i data-lucide="check-circle-2" class="w-10 h-10"></i>
+            </div>
+            <h1 class="text-2xl font-black text-white tracking-tight">Verified!</h1>
+            <p class="text-xs text-slate-300 mt-2 leading-relaxed">{{ message }}</p>
+
+            {% if role_msg %}
+            <div class="mt-4 p-3 rounded-xl bg-emerald-500/10 border border-emerald-500/20 text-emerald-400 text-xs font-semibold">
+                {{ role_msg }}
+            </div>
+            {% endif %}
+
+            <div class="mt-8 space-y-2">
+                <a href="https://discord.com/channels/{{ guild_id }}" target="_blank"
+                    class="w-full py-3.5 px-6 rounded-2xl bg-emerald-600 hover:bg-emerald-500 text-white font-bold text-sm shadow-xl shadow-emerald-600/25 flex items-center justify-center gap-2 transition-all transform active:scale-98">
+                    <i data-lucide="external-link" class="w-4 h-4"></i>
+                    <span>Open Discord Server</span>
+                </a>
+                <p class="text-[11px] text-slate-500 mt-3">You can close this tab now.</p>
+            </div>
+
+            {% else %}
+            <div class="w-20 h-20 rounded-3xl bg-rose-500/10 border-2 border-rose-500/30 text-rose-400 flex items-center justify-center mx-auto mb-5 shadow-xl shadow-rose-500/10">
+                <i data-lucide="shield-alert" class="w-10 h-10"></i>
+            </div>
+            <h1 class="text-2xl font-black text-white tracking-tight">{{ title }}</h1>
+            <p class="text-xs text-rose-300 mt-2 leading-relaxed font-medium">{{ message }}</p>
+
+            {% if telemetry %}
+            <div class="mt-5 p-3.5 rounded-xl bg-slate-900/80 border border-slate-800 text-left text-xs space-y-1.5 font-mono">
+                <div class="flex justify-between text-slate-400">
+                    <span>IP:</span>
+                    <span class="text-slate-200">{{ telemetry.ip }}</span>
+                </div>
+                <div class="flex justify-between text-slate-400">
+                    <span>Provider:</span>
+                    <span class="text-slate-200">{{ telemetry.isp }}</span>
+                </div>
+                <div class="flex justify-between text-slate-400">
+                    <span>Account Age:</span>
+                    <span class="text-slate-200">{{ telemetry.account_age_days }} days</span>
+                </div>
+            </div>
+            {% endif %}
+
+            <div class="mt-8">
+                <button onclick="window.history.back()"
+                    class="w-full py-3.5 px-6 rounded-2xl bg-slate-800 hover:bg-slate-700 text-slate-200 font-bold text-sm flex items-center justify-center gap-2 transition-colors">
+                    <i data-lucide="arrow-left" class="w-4 h-4"></i>
+                    <span>{% if is_vpn_block %}Try Again Without VPN{% else %}Go Back{% endif %}</span>
+                </button>
+            </div>
+            {% endif %}
+
+        </div>
+    </div>
+
+    <script>
+        lucide.createIcons();
+    </script>
+</body>
+</html>

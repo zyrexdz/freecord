@@ -1,0 +1,1061 @@
+{% extends "base.html" %}
+
+{% block title %}Members - FreeCord{% endblock %}
+{% block page_title %}Members{% endblock %}
+
+{% block content %}
+<div class="space-y-6">
+
+    <div class="glass-panel rounded-3xl p-6 sm:p-7 border border-white/10 relative overflow-hidden flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+        <div>
+            <h2 class="text-xl font-bold text-white tracking-tight">Verified Members</h2>
+            <p class="text-xs text-slate-400 mt-1">
+                View verified members and restore them into your server.
+            </p>
+        </div>
+        <div class="flex items-center gap-2 flex-wrap sm:flex-nowrap">
+            <button onclick="document.getElementById('export-tokens-modal').classList.remove('hidden')"
+                class="px-3.5 py-2.5 bg-white/5 hover:bg-white/10 text-slate-200 border border-white/10 text-xs font-bold rounded-2xl flex items-center justify-center gap-2 transition-all">
+                <i data-lucide="download" class="w-4 h-4 text-emerald-400"></i>
+                <span>Export Tokens</span>
+            </button>
+            <button onclick="document.getElementById('import-tokens-modal').classList.remove('hidden')"
+                class="px-3.5 py-2.5 bg-indigo-600/30 hover:bg-indigo-600/50 text-indigo-200 border border-indigo-500/30 text-xs font-bold rounded-2xl flex items-center justify-center gap-2 transition-all">
+                <i data-lucide="upload" class="w-4 h-4 text-indigo-300"></i>
+                <span>Import Tokens</span>
+            </button>
+            <button onclick="document.getElementById('new-migration-modal').classList.remove('hidden')"
+                class="px-5 py-2.5 bg-emerald-600 hover:bg-emerald-500 text-white text-xs font-bold rounded-2xl shadow-lg shadow-emerald-600/25 flex items-center justify-center gap-2 transition-all transform active:scale-98">
+                <i data-lucide="play" class="w-4 h-4"></i>
+                <span>Restore Members</span>
+            </button>
+        </div>
+    </div>
+
+    <div class="grid grid-cols-2 sm:grid-cols-4 gap-4">
+        <div class="glass-panel rounded-2xl p-4 border border-white/10">
+            <div class="flex items-center justify-between">
+                <span class="text-xs font-semibold text-slate-400">Total Verified</span>
+                <i data-lucide="users" class="w-4 h-4 text-emerald-400"></i>
+            </div>
+            <p class="text-2xl font-black text-white mt-1">{{ total_verified }}</p>
+        </div>
+
+        <div class="glass-panel rounded-2xl p-4 border border-white/10">
+            <div class="flex items-center justify-between">
+                <span class="text-xs font-semibold text-slate-400">Active Tokens</span>
+                <i data-lucide="shield-check" class="w-4 h-4 text-indigo-400"></i>
+            </div>
+            <p class="text-2xl font-black text-indigo-300 mt-1">{{ active_tokens }}</p>
+        </div>
+
+        <div class="glass-panel rounded-2xl p-4 border border-white/10">
+            <div class="flex items-center justify-between">
+                <span class="text-xs font-semibold text-slate-400">Restored Members</span>
+                <i data-lucide="check-circle-2" class="w-4 h-4 text-teal-400"></i>
+            </div>
+            <p class="text-2xl font-black text-teal-300 mt-1">{{ completed_restores }}</p>
+        </div>
+
+        <div class="glass-panel rounded-2xl p-4 border border-white/10">
+            <div class="flex items-center justify-between">
+                <span class="text-xs font-semibold text-slate-400">Threats Blocked</span>
+                <i data-lucide="shield-alert" class="w-4 h-4 text-rose-400"></i>
+            </div>
+            <p class="text-2xl font-black text-rose-400 mt-1">{{ vpn_flagged }}</p>
+        </div>
+    </div>
+
+    <div id="live-progress-panel" class="glass-panel rounded-2xl p-6 border border-slate-800 space-y-5 relative overflow-hidden hidden">
+        <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4 border-b border-slate-800 pb-4">
+            <div class="flex items-center gap-3">
+                <div class="w-10 h-10 rounded-xl bg-emerald-500/10 text-emerald-400 flex items-center justify-center border border-emerald-500/20">
+                    <i data-lucide="activity" class="w-5 h-5 animate-pulse"></i>
+                </div>
+                <div>
+                    <div class="flex items-center gap-2">
+                        <h3 class="font-bold text-base text-white">Active Restore:</h3>
+                        <span id="active-task-uuid" class="font-mono text-xs text-emerald-400 font-semibold"></span>
+                    </div>
+                    <p class="text-xs text-slate-400">Live progress (<span id="ws-status-text" class="text-emerald-400">Connected</span>)</p>
+                </div>
+            </div>
+
+            <div class="flex items-center gap-2">
+                <button id="btn-pause" onclick="controlActiveTask('pause')" class="px-3 py-1.5 bg-amber-500/20 hover:bg-amber-500/30 text-amber-300 border border-amber-500/30 rounded-lg text-xs font-semibold flex items-center gap-1">
+                    <i data-lucide="pause" class="w-3.5 h-3.5"></i>
+                    <span>Pause</span>
+                </button>
+                <button id="btn-resume" onclick="controlActiveTask('resume')" class="px-3 py-1.5 bg-emerald-500/20 hover:bg-emerald-500/30 text-emerald-300 border border-emerald-500/30 rounded-lg text-xs font-semibold flex items-center gap-1 hidden">
+                    <i data-lucide="play" class="w-3.5 h-3.5"></i>
+                    <span>Resume</span>
+                </button>
+                <button id="btn-stop" onclick="controlActiveTask('stop')" class="px-3 py-1.5 bg-rose-500/20 hover:bg-rose-500/30 text-rose-300 border border-rose-500/30 rounded-lg text-xs font-semibold flex items-center gap-1">
+                    <i data-lucide="square" class="w-3.5 h-3.5"></i>
+                    <span>Stop</span>
+                </button>
+            </div>
+        </div>
+
+        <div class="space-y-2">
+            <div class="flex justify-between text-xs font-medium">
+                <span class="text-slate-300">Progress: <strong id="progress-percent" class="text-white font-mono">0%</strong></span>
+                <span class="text-slate-400 font-mono">Speed: <strong id="pull-speed" class="text-emerald-400">0.0</strong> members/sec</span>
+            </div>
+            <div class="w-full h-3 rounded-full bg-slate-900 border border-slate-800 overflow-hidden p-0.5">
+                <div id="progress-bar-fill" class="h-full bg-gradient-to-r from-emerald-500 to-teal-400 rounded-full transition-all duration-300" style="width: 0%"></div>
+            </div>
+        </div>
+
+        <div class="grid grid-cols-2 sm:grid-cols-4 gap-3 text-xs">
+            <div class="p-3 rounded-xl bg-slate-900/70 border border-slate-800">
+                <span class="text-slate-400">Successfully Added</span>
+                <p id="count-success" class="text-lg font-extrabold text-emerald-400 mt-0.5">0</p>
+            </div>
+            <div class="p-3 rounded-xl bg-slate-900/70 border border-slate-800">
+                <span class="text-slate-400">Already in Server</span>
+                <p id="count-already" class="text-lg font-extrabold text-sky-400 mt-0.5">0</p>
+            </div>
+            <div class="p-3 rounded-xl bg-slate-900/70 border border-slate-800">
+                <span class="text-slate-400">Failed / Unauthorized</span>
+                <p id="count-failed" class="text-lg font-extrabold text-rose-400 mt-0.5">0</p>
+            </div>
+            <div class="p-3 rounded-xl bg-slate-900/70 border border-slate-800">
+                <span class="text-slate-400">Rate Limits</span>
+                <p id="count-rate-limit" class="text-lg font-extrabold text-amber-400 mt-0.5">0</p>
+            </div>
+        </div>
+
+        <div class="space-y-1.5">
+            <div class="flex items-center justify-between text-[11px] text-slate-400 uppercase tracking-wider font-bold">
+                <span>Restore Console</span>
+                <span class="text-[10px] font-normal lowercase text-slate-500">Live Discord API stream</span>
+            </div>
+            <div id="worker-console" class="terminal-logs p-3.5 rounded-xl h-48 overflow-y-auto text-slate-300 space-y-1 bg-slate-950/90 border border-slate-800/80 font-mono text-[11px]">
+                <div class="text-slate-500">Connecting to task stream...</div>
+            </div>
+        </div>
+    </div>
+
+    <div class="glass-panel rounded-3xl overflow-hidden border border-white/10 shadow-xl">
+        <div class="p-5 border-b border-white/10 flex flex-col md:flex-row md:items-center justify-between gap-4">
+            <div class="flex items-center gap-2.5">
+                <div class="w-8 h-8 rounded-xl bg-indigo-500/10 text-indigo-400 flex items-center justify-center border border-indigo-500/20">
+                    <i data-lucide="users" class="w-4 h-4"></i>
+                </div>
+                <div>
+                    <h3 class="font-bold text-sm text-white">Verified Members List</h3>
+                    <p class="text-[11px] text-slate-400">Total: {{ total_verified }} members (Page {{ page }} of {{ total_pages }})</p>
+                </div>
+            </div>
+
+            <form action="/migrations" method="GET" class="flex items-center gap-2">
+                <div class="relative w-full sm:w-72">
+                    <i data-lucide="search" class="w-3.5 h-3.5 text-slate-400 absolute left-3 top-1/2 -translate-y-1/2"></i>
+                    <input type="text" id="member-search-input" name="q" value="{{ q }}"
+                        placeholder="Search username, ID, IP..."
+                        onkeyup="filterMembersTable(this.value)"
+                        class="w-full pl-8 pr-8 py-1.5 bg-slate-900/90 border border-white/10 rounded-xl text-xs text-white placeholder-slate-500 focus:outline-none focus:border-indigo-500 transition-colors">
+                    {% if q %}
+                    <a href="/migrations" class="absolute right-2.5 top-1/2 -translate-y-1/2 text-slate-400 hover:text-white text-xs">
+                        <i data-lucide="x" class="w-3.5 h-3.5"></i>
+                    </a>
+                    {% endif %}
+                </div>
+                <button type="submit" class="px-3 py-1.5 bg-white/5 hover:bg-white/10 text-slate-300 text-xs font-semibold rounded-xl border border-white/10 transition-colors shrink-0">
+                    Search
+                </button>
+            </form>
+        </div>
+
+        <div class="overflow-x-auto">
+            <table class="w-full text-left text-xs text-slate-300">
+                <thead class="bg-slate-900/80 text-slate-400 uppercase font-semibold text-[11px] border-b border-white/10">
+                    <tr>
+                        <th class="py-3.5 px-4">Member</th>
+                        <th class="py-3.5 px-4">Discord ID</th>
+                        <th class="py-3.5 px-4">IP and Location</th>
+                        <th class="py-3.5 px-4">Status</th>
+                        <th class="py-3.5 px-4">Verified Date</th>
+                        <th class="py-3.5 px-4 text-right">Actions</th>
+                    </tr>
+                </thead>
+                <tbody id="members-table-body" class="divide-y divide-white/5">
+                    {% for m in members %}
+                    <tr class="member-table-row hover:bg-white/5 transition-colors" data-search="{{ (m.username ~ ' ' ~ m.user_id ~ ' ' ~ (m.ip_address or '') ~ ' ' ~ (m.country or '') ~ ' ' ~ (m.isp or ''))|lower }}">
+                        <td class="py-3 px-4">
+                            <div class="flex items-center gap-3">
+                                {% if m.avatar %}
+                                <img src="{{ m.avatar }}" alt="{{ m.username }}" class="w-8 h-8 rounded-full object-cover border border-white/10">
+                                {% else %}
+                                <div class="w-8 h-8 rounded-full bg-indigo-600/30 text-indigo-300 flex items-center justify-center font-bold text-xs border border-indigo-500/20">
+                                    {{ m.username[:2].upper() }}
+                                </div>
+                                {% endif %}
+                                <div>
+                                    <p class="font-bold text-white text-xs leading-none">{{ m.username }}</p>
+                                    <p class="text-[10px] text-slate-400 mt-0.5">
+                                        {% if m.email %}{{ m.email }}{% else %}Discord Member{% endif %}
+                                    </p>
+                                </div>
+                            </div>
+                        </td>
+                        <td class="py-3 px-4 font-mono text-slate-300 text-xs">
+                            {{ m.user_id }}
+                        </td>
+                        <td class="py-3 px-4 text-xs">
+                            <p class="text-slate-200">{{ m.country or 'Unknown' }} ({{ m.country_code or '??' }})</p>
+                            <p class="text-[10px] font-mono text-slate-400">{{ m.ip_address or '0.0.0.0' }}</p>
+                        </td>
+                        <td class="py-3 px-4">
+                            {% if m.is_blacklisted %}
+                            <span class="px-2 py-0.5 rounded text-[10px] font-bold bg-rose-500/10 text-rose-400 border border-rose-500/20">Blacklisted</span>
+                            {% elif m.is_vpn %}
+                            <span class="px-2 py-0.5 rounded text-[10px] font-bold bg-amber-500/10 text-amber-400 border border-amber-500/20">VPN or Proxy</span>
+                            {% else %}
+                            <span class="px-2 py-0.5 rounded text-[10px] font-bold bg-emerald-500/10 text-emerald-400 border border-emerald-500/20">Verified</span>
+                            {% endif %}
+                        </td>
+                        <td class="py-3 px-4 text-slate-400 text-xs">
+                            {{ m.verified_at.strftime('%b %d, %Y %H:%M') if m.verified_at else 'Recently' }}
+                        </td>
+                        <td class="py-3 px-4 text-right">
+                            <div class="flex items-center justify-end gap-1.5">
+                                <button type="button" data-member-info='{{ m.info_json }}' onclick="showMemberInfo(this)" class="p-1.5 rounded-lg bg-sky-500/10 hover:bg-sky-500/20 text-sky-400 text-[11px] transition-colors inline-flex items-center justify-center border border-sky-500/20" title="Inspect Full Information">
+                                    <i data-lucide="info" class="w-3.5 h-3.5"></i>
+                                </button>
+                                <button type="button" onclick="openMemberBlacklistModal('{{ m.id }}', '{{ m.username }}', '{{ m.user_id }}', '{{ m.source_guild_id or '' }}', {{ 'true' if m.is_blacklisted else 'false' }})" class="p-1.5 rounded-lg bg-white/5 hover:bg-white/10 {% if m.is_blacklisted %}text-rose-400 bg-rose-500/10 border border-rose-500/20{% else %}text-slate-300 hover:text-amber-400{% endif %} text-[11px] transition-colors inline-flex items-center justify-center" title="Manage Blacklist">
+                                    <i data-lucide="shield-alert" class="w-3.5 h-3.5"></i>
+                                </button>
+                                <a href="/members/{{ m.id }}/delete" class="p-1.5 rounded-lg bg-white/5 hover:bg-rose-500/20 text-slate-300 hover:text-rose-400 text-[11px] transition-colors inline-flex items-center justify-center" title="Delete Member">
+                                    <i data-lucide="trash-2" class="w-3.5 h-3.5"></i>
+                                </a>
+                            </div>
+                        </td>
+                    </tr>
+                    {% else %}
+                    <tr>
+                        <td colspan="6" class="py-12 text-center text-slate-400">
+                            <div class="w-12 h-12 rounded-2xl bg-indigo-500/10 text-indigo-400 flex items-center justify-center mx-auto mb-3 border border-indigo-500/20">
+                                <i data-lucide="user-x" class="w-6 h-6"></i>
+                            </div>
+                            <p class="font-bold text-sm text-white">No Verified Members Yet</p>
+                            <p class="text-xs text-slate-400 mt-1">Send the verify message to your server to begin verifying members.</p>
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+
+        {% if total_pages > 1 %}
+        <div class="p-4 border-t border-white/10 flex items-center justify-between text-xs text-slate-400">
+            <div>
+                Page <span class="text-white font-bold">{{ page }}</span> of <span class="text-white font-bold">{{ total_pages }}</span>
+            </div>
+            <div class="flex items-center gap-2">
+                {% if has_prev %}
+                <a href="/migrations?page={{ prev_page }}" class="px-3 py-1.5 rounded-xl bg-white/5 hover:bg-white/10 text-slate-200 font-semibold flex items-center gap-1 transition-colors">
+                    <i data-lucide="chevron-left" class="w-3.5 h-3.5"></i>
+                    <span>Previous</span>
+                </a>
+                {% endif %}
+
+                {% if has_next %}
+                <a href="/migrations?page={{ next_page }}" class="px-3 py-1.5 rounded-xl bg-white/5 hover:bg-white/10 text-slate-200 font-semibold flex items-center gap-1 transition-colors">
+                    <span>Next</span>
+                    <i data-lucide="chevron-right" class="w-3.5 h-3.5"></i>
+                </a>
+                {% endif %}
+            </div>
+        </div>
+        {% endif %}
+    </div>
+
+    <div class="glass-panel rounded-3xl overflow-hidden border border-white/10 shadow-xl">
+        <div class="p-5 border-b border-white/10 flex items-center justify-between">
+            <h3 class="font-bold text-sm text-white">Restore History</h3>
+        </div>
+        <div class="overflow-x-auto">
+            <table class="w-full text-left text-xs text-slate-300">
+                <thead class="bg-slate-900/80 text-slate-400 uppercase font-semibold text-[11px] border-b border-white/10">
+                    <tr>
+                        <th class="py-3.5 px-4">Task ID</th>
+                        <th class="py-3.5 px-4">Target Server</th>
+                        <th class="py-3.5 px-4">Progress</th>
+                        <th class="py-3.5 px-4">Status</th>
+                        <th class="py-3.5 px-4">Success</th>
+                        <th class="py-3.5 px-4">Already In</th>
+                        <th class="py-3.5 px-4">Failed</th>
+                        <th class="py-3.5 px-4">Created</th>
+                    </tr>
+                </thead>
+                <tbody class="divide-y divide-white/5">
+                    {% for t in tasks %}
+                    <tr class="hover:bg-white/5 transition-colors cursor-pointer" onclick="startLiveStreaming('{{ t.task_uuid }}')">
+                        <td class="py-3 px-4 font-mono text-indigo-400 font-bold">
+                            {{ t.task_uuid }}
+                        </td>
+                        <td class="py-3 px-4 font-mono text-slate-300">
+                            {{ t.target_guild_id }}
+                        </td>
+                        <td class="py-3 px-4">
+                            {% set pct = ((t.success_count + t.already_in_guild_count) / t.total_members * 100)|round|int if t.total_members > 0 else 100 %}
+                            <div class="flex items-center gap-2">
+                                <div class="w-16 h-1.5 rounded-full bg-slate-800 overflow-hidden">
+                                    <div class="h-full bg-emerald-500 rounded-full" style="width: {{ pct }}%"></div>
+                                </div>
+                                <span class="font-mono text-[10px] text-slate-400">{{ pct }}%</span>
+                            </div>
+                        </td>
+                        <td class="py-3 px-4">
+                            {% if t.status == 'COMPLETED' %}
+                            <span class="px-2 py-0.5 rounded text-[10px] font-bold bg-emerald-500/10 text-emerald-400 border border-emerald-500/20">COMPLETED</span>
+                            {% elif t.status == 'RUNNING' %}
+                            <span class="px-2 py-0.5 rounded text-[10px] font-bold bg-indigo-500/10 text-indigo-400 border border-indigo-500/20 animate-pulse">RUNNING</span>
+                            {% elif t.status == 'PAUSED' %}
+                            <span class="px-2 py-0.5 rounded text-[10px] font-bold bg-amber-500/10 text-amber-400 border border-amber-500/20">PAUSED</span>
+                            {% elif t.status == 'STOPPED' %}
+                            <span class="px-2 py-0.5 rounded text-[10px] font-bold bg-rose-500/10 text-rose-400 border border-rose-500/20">STOPPED</span>
+                            {% else %}
+                            <span class="px-2 py-0.5 rounded text-[10px] font-bold bg-slate-500/10 text-slate-400 border border-slate-500/20">{{ t.status }}</span>
+                            {% endif %}
+                        </td>
+                        <td class="py-3 px-4 font-mono text-emerald-400 font-semibold">{{ t.success_count }}</td>
+                        <td class="py-3 px-4 font-mono text-sky-400">{{ t.already_in_guild_count }}</td>
+                        <td class="py-3 px-4 font-mono text-rose-400">{{ t.failed_count }}</td>
+                        <td class="py-3 px-4 text-slate-400">{{ t.created_at.strftime('%b %d, %H:%M') }}</td>
+                    </tr>
+                    {% else %}
+                    <tr>
+                        <td colspan="8" class="py-8 text-center text-slate-500">No restore tasks recorded yet.</td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+</div>
+
+<div id="new-migration-modal" class="fixed inset-0 z-50 bg-black/60 backdrop-blur-md flex items-center justify-center p-4 hidden">
+    <div class="glass-panel w-full max-w-lg rounded-3xl p-6 sm:p-7 shadow-2xl border border-white/10 relative text-left animate-scale-in">
+        <div class="flex items-center justify-between border-b border-white/10 pb-4 mb-4">
+            <div class="flex items-center gap-3">
+                <div class="w-9 h-9 rounded-2xl bg-emerald-500/10 text-emerald-400 flex items-center justify-center border border-emerald-500/20">
+                    <i data-lucide="play" class="w-5 h-5"></i>
+                </div>
+                <div>
+                    <h3 class="font-bold text-sm text-white">Restore Members</h3>
+                    <p class="text-[11px] text-slate-400">Pull verified members into one or multiple target servers</p>
+                </div>
+            </div>
+            <button onclick="document.getElementById('new-migration-modal').classList.add('hidden')" class="w-8 h-8 rounded-full bg-white/5 hover:bg-white/10 flex items-center justify-center text-slate-400 hover:text-white transition-colors">
+                <i data-lucide="x" class="w-4 h-4"></i>
+            </button>
+        </div>
+
+        <form action="/migrations/create" method="POST" class="space-y-3.5 text-xs">
+            <div>
+                <label class="block font-semibold text-slate-300 mb-1">Select Bot</label>
+                <select name="bot_id" id="modal-bot-select" required onchange="populateTargetGuilds()" class="w-full px-3.5 py-2.5 bg-slate-900 border border-slate-700 rounded-xl text-slate-200 focus:outline-none focus:border-emerald-500">
+                    {% for b in available_bots %}
+                    <option value="{{ b.id }}" data-guilds='{{ b.guilds|tojson }}'>
+                        {{ b.name }} ({{ b.verified_count }} Verified Members)
+                    </option>
+                    {% else %}
+                    <option value="">No active bots found</option>
+                    {% endfor %}
+                </select>
+            </div>
+
+            <div>
+                <label class="block font-semibold text-slate-300 mb-1">Target Discord Server</label>
+                <select name="target_guild_id" id="modal-target-guild" class="w-full px-3.5 py-2.5 bg-slate-900 border border-slate-700 rounded-xl text-slate-200 focus:outline-none focus:border-emerald-500">
+                </select>
+                <p class="text-[10px] text-slate-400 mt-1">Or enter multiple server IDs below for multi-server pulling.</p>
+            </div>
+
+            <div>
+                <label class="block font-semibold text-slate-300 mb-1">Multi-Server Target IDs (Optional)</label>
+                <input type="text" name="target_guild_ids" placeholder="e.g. 123456789012345678, 987654321098765432"
+                    class="w-full px-3.5 py-2 bg-slate-900 border border-slate-700 rounded-xl text-slate-200 placeholder-slate-600 focus:outline-none focus:border-emerald-500">
+                <p class="text-[10px] text-slate-400 mt-0.5">Comma-separated server IDs to pull into multiple servers simultaneously.</p>
+            </div>
+
+            <div class="grid grid-cols-2 gap-3">
+                <div>
+                    <label class="block font-semibold text-slate-300 mb-1">Members to Pull</label>
+                    <input type="number" name="amount" min="1" placeholder="All members"
+                        class="w-full px-3.5 py-2 bg-slate-900 border border-slate-700 rounded-xl text-slate-200 placeholder-slate-600 focus:outline-none focus:border-emerald-500">
+                </div>
+
+                <div>
+                    <label class="block font-semibold text-slate-300 mb-1">Min Stay Filter (Days)</label>
+                    <input type="number" name="min_stay_days" min="0" value="0" placeholder="0 = all"
+                        class="w-full px-3.5 py-2 bg-slate-900 border border-slate-700 rounded-xl text-slate-200 placeholder-slate-600 focus:outline-none focus:border-emerald-500">
+                </div>
+            </div>
+
+            <div>
+                <label class="block font-semibold text-slate-300 mb-1">Schedule Migration Time (Optional)</label>
+                <input type="datetime-local" name="schedule_time"
+                    class="w-full px-3.5 py-2 bg-slate-900 border border-slate-700 rounded-xl text-slate-200 focus:outline-none focus:border-emerald-500">
+                <p class="text-[10px] text-slate-400 mt-0.5">Leave blank to start immediately, or set a future time to run automatically.</p>
+            </div>
+
+            <div class="pt-3 border-t border-white/10 flex justify-end gap-2">
+                <button type="button" onclick="document.getElementById('new-migration-modal').classList.add('hidden')"
+                    class="px-4 py-2 bg-white/5 hover:bg-white/10 text-slate-300 font-semibold rounded-xl text-xs transition-colors">
+                    Cancel
+                </button>
+                <button type="submit"
+                    class="px-5 py-2 bg-emerald-600 hover:bg-emerald-500 text-white font-bold rounded-xl text-xs shadow-lg shadow-emerald-600/25 transition-all">
+                    Start Restore
+                </button>
+            </div>
+        </form>
+    </div>
+</div>
+
+<div id="import-tokens-modal" class="fixed inset-0 z-50 bg-black/60 backdrop-blur-md flex items-center justify-center p-4 hidden">
+    <div class="glass-panel w-full max-w-lg rounded-3xl p-6 sm:p-7 shadow-2xl border border-white/10 relative text-left animate-scale-in">
+        <div class="flex items-center justify-between border-b border-white/10 pb-4 mb-4">
+            <div class="flex items-center gap-3">
+                <div class="w-9 h-9 rounded-2xl bg-indigo-500/10 text-indigo-400 flex items-center justify-center border border-indigo-500/20">
+                    <i data-lucide="upload" class="w-5 h-5"></i>
+                </div>
+                <div>
+                    <h3 class="font-bold text-sm text-white">Import Discord Tokens</h3>
+                    <p class="text-[11px] text-slate-400">Paste raw OAuth2 tokens or token export files</p>
+                </div>
+            </div>
+            <button onclick="document.getElementById('import-tokens-modal').classList.add('hidden')" class="w-8 h-8 rounded-full bg-white/5 hover:bg-white/10 flex items-center justify-center text-slate-400 hover:text-white transition-colors">
+                <i data-lucide="x" class="w-4 h-4"></i>
+            </button>
+        </div>
+
+        <form action="/migrations/import-tokens" method="POST" class="space-y-3.5 text-xs">
+            <div>
+                <label class="block font-semibold text-slate-300 mb-1">Assign to Bot</label>
+                <select name="bot_id" required class="w-full px-3.5 py-2.5 bg-slate-900 border border-slate-700 rounded-xl text-slate-200 focus:outline-none focus:border-indigo-500">
+                    {% for b in available_bots %}
+                    <option value="{{ b.id }}">
+                        {{ b.name }} ({{ b.verified_count }} Current Tokens)
+                    </option>
+                    {% endfor %}
+                </select>
+            </div>
+
+            <div>
+                <label class="block font-semibold text-slate-300 mb-1">Tokens List (One per line)</label>
+                <textarea name="raw_tokens" rows="6" required placeholder="Paste tokens here...
+Accepted formats:
+- access_token
+- user_id:access_token:refresh_token
+- {&quot;user_id&quot;: &quot;...&quot;, &quot;access_token&quot;: &quot;...&quot;}"
+                    class="w-full px-3.5 py-2 bg-slate-900 border border-slate-700 rounded-xl font-mono text-[11px] text-slate-200 placeholder-slate-600 focus:outline-none focus:border-indigo-500"></textarea>
+                <p class="text-[10px] text-slate-400 mt-1">Direct token import automatically validates and encrypts secrets at rest.</p>
+            </div>
+
+            <div class="pt-3 border-t border-white/10 flex justify-end gap-2">
+                <button type="button" onclick="document.getElementById('import-tokens-modal').classList.add('hidden')"
+                    class="px-4 py-2 bg-white/5 hover:bg-white/10 text-slate-300 font-semibold rounded-xl text-xs transition-colors">
+                    Cancel
+                </button>
+                <button type="submit"
+                    class="px-5 py-2 bg-indigo-600 hover:bg-indigo-500 text-white font-bold rounded-xl text-xs shadow-lg shadow-indigo-600/25 transition-all">
+                    Import Tokens
+                </button>
+            </div>
+        </form>
+    </div>
+</div>
+
+<div id="export-tokens-modal" class="fixed inset-0 z-50 bg-black/60 backdrop-blur-md flex items-center justify-center p-4 hidden">
+    <div class="glass-panel w-full max-w-lg rounded-3xl p-6 sm:p-7 shadow-2xl border border-white/10 relative text-left space-y-4 animate-scale-in">
+        <div class="flex items-center justify-between border-b border-white/10 pb-4">
+            <div class="flex items-center gap-3">
+                <div class="w-9 h-9 rounded-2xl bg-emerald-500/10 text-emerald-400 flex items-center justify-center border border-emerald-500/20">
+                    <i data-lucide="download" class="w-5 h-5"></i>
+                </div>
+                <div>
+                    <h3 class="font-bold text-sm text-white">Export Discord Tokens</h3>
+                    <p class="text-[11px] text-slate-400">Export verified member access tokens</p>
+                </div>
+            </div>
+            <button onclick="document.getElementById('export-tokens-modal').classList.add('hidden')" class="w-8 h-8 rounded-full bg-white/5 hover:bg-white/10 flex items-center justify-center text-slate-400 hover:text-white transition-colors">
+                <i data-lucide="x" class="w-4 h-4"></i>
+            </button>
+        </div>
+
+        <form id="export-tokens-form" action="/migrations/export-tokens" method="POST" class="space-y-3.5 text-xs">
+            <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                <div>
+                    <label class="block font-semibold text-slate-300 mb-1">Bot Source</label>
+                    <select name="bot_id" id="export-bot-id" class="w-full px-3 py-2 bg-slate-900 border border-slate-700 rounded-xl text-slate-200 focus:outline-none focus:border-emerald-500">
+                        <option value="ALL">All Bots ({{ total_verified }} Tokens)</option>
+                        {% for b in available_bots %}
+                        <option value="{{ b.id }}">{{ b.name }} ({{ b.verified_count }} Tokens)</option>
+                        {% endfor %}
+                    </select>
+                </div>
+
+                <div>
+                    <label class="block font-semibold text-slate-300 mb-1">Export Format</label>
+                    <select name="export_format" id="export-format" class="w-full px-3 py-2 bg-slate-900 border border-slate-700 rounded-xl text-slate-200 focus:outline-none focus:border-emerald-500">
+                        <option value="combo">ID:Access:Refresh Token</option>
+                        <option value="user_access">ID:Access Token</option>
+                        <option value="access_only">Access Token Only</option>
+                        <option value="json">JSON Format (Full details)</option>
+                    </select>
+                </div>
+            </div>
+
+            <div class="p-3 rounded-xl bg-slate-900/60 border border-white/5 flex items-center justify-between">
+                <div>
+                    <span class="font-semibold text-white block">Active Only</span>
+                    <span class="text-[10px] text-slate-400">Exclude blacklisted members</span>
+                </div>
+                <input type="checkbox" name="only_active" value="true" id="export-only-active" checked class="w-4 h-4 rounded bg-slate-950 border-slate-700 text-emerald-600 focus:ring-0">
+            </div>
+
+            <div>
+                <label class="block font-semibold text-slate-300 mb-1">Export Preview / Output</label>
+                <textarea id="export-output-preview" rows="5" readonly placeholder="Click Generate Preview or Download to export..."
+                    class="w-full px-3 py-2 bg-slate-950 border border-slate-800 rounded-xl font-mono text-[10px] text-emerald-400 focus:outline-none select-all"></textarea>
+            </div>
+
+            <div class="pt-3 border-t border-white/10 flex items-center justify-between gap-2">
+                <button type="button" onclick="generateTokenPreview()"
+                    class="px-4 py-2 bg-white/5 hover:bg-white/10 text-slate-200 font-semibold rounded-xl text-xs transition-colors flex items-center gap-1.5">
+                    <i data-lucide="eye" class="w-3.5 h-3.5"></i>
+                    <span>Generate Preview</span>
+                </button>
+                <div class="flex items-center gap-2">
+                    <button type="button" onclick="copyExportedTokens()"
+                        class="px-4 py-2 bg-slate-800 hover:bg-slate-700 text-slate-200 font-bold rounded-xl text-xs transition-colors flex items-center gap-1.5">
+                        <i data-lucide="copy" class="w-3.5 h-3.5"></i>
+                        <span>Copy</span>
+                    </button>
+                    <button type="submit" name="download" value="true"
+                        class="px-5 py-2 bg-emerald-600 hover:bg-emerald-500 text-white font-bold rounded-xl text-xs shadow-lg shadow-emerald-600/25 transition-all flex items-center gap-1.5">
+                        <i data-lucide="download" class="w-3.5 h-3.5"></i>
+                        <span>Download File</span>
+                    </button>
+                </div>
+            </div>
+        </form>
+    </div>
+</div>
+
+<div id="member-info-modal" class="fixed inset-0 z-50 bg-black/80 backdrop-blur-sm flex items-center justify-center p-4 hidden">
+    <div class="glass-panel rounded-3xl max-w-2xl w-full border border-white/10 shadow-2xl overflow-hidden flex flex-col max-h-[90vh] animate-in fade-in zoom-in-95 duration-200">
+        <div class="p-5 border-b border-white/10 flex items-center justify-between bg-slate-900/60">
+            <div class="flex items-center gap-3">
+                <img id="info-avatar" src="https://cdn.discordapp.com/embed/avatars/0.png" alt="Avatar" class="w-11 h-11 rounded-2xl object-cover border border-white/10">
+                <div>
+                    <h3 id="info-username" class="font-bold text-base text-white">Member Details</h3>
+                    <p id="info-userid" class="text-xs font-mono text-slate-400">ID: --</p>
+                </div>
+            </div>
+            <button onclick="document.getElementById('member-info-modal').classList.add('hidden')" class="p-2 rounded-xl bg-white/5 hover:bg-white/10 text-slate-400 hover:text-white transition-colors">
+                <i data-lucide="x" class="w-4 h-4"></i>
+            </button>
+        </div>
+
+        <div class="p-6 overflow-y-auto space-y-5 text-xs">
+            <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                
+                <div class="p-4 rounded-2xl bg-slate-900/60 border border-white/5 space-y-3">
+                    <h4 class="font-bold text-slate-300 text-[11px] uppercase tracking-wider flex items-center gap-1.5 text-indigo-400">
+                        <i data-lucide="user" class="w-3.5 h-3.5"></i>
+                        <span>Discord Profile</span>
+                    </h4>
+                    <div class="space-y-1.5 text-slate-300">
+                        <div class="flex justify-between"><span class="text-slate-500">Email:</span><span id="info-email" class="font-medium text-slate-200">--</span></div>
+                        <div class="flex justify-between"><span class="text-slate-500">Account Created:</span><span id="info-created" class="font-medium text-slate-200">--</span></div>
+                        <div class="flex justify-between"><span class="text-slate-500">Account Age:</span><span id="info-age" class="font-medium text-emerald-400">--</span></div>
+                        <div class="flex justify-between"><span class="text-slate-500">Verified On:</span><span id="info-verified" class="font-medium text-slate-200">--</span></div>
+                        <div class="flex justify-between"><span class="text-slate-500">Source Server:</span><span id="info-guild" class="font-mono text-slate-200">--</span></div>
+                    </div>
+                </div>
+
+                <div class="p-4 rounded-2xl bg-slate-900/60 border border-white/5 space-y-3">
+                    <h4 class="font-bold text-slate-300 text-[11px] uppercase tracking-wider flex items-center gap-1.5 text-sky-400">
+                        <i data-lucide="monitor" class="w-3.5 h-3.5"></i>
+                        <span>PC & Device Details</span>
+                    </h4>
+                    <div class="space-y-1.5 text-slate-300">
+                        <div class="flex justify-between"><span class="text-slate-500">Operating System:</span><span id="info-os" class="font-medium text-slate-200">--</span></div>
+                        <div class="flex justify-between"><span class="text-slate-500">Browser:</span><span id="info-browser" class="font-medium text-slate-200">--</span></div>
+                        <div class="flex justify-between"><span class="text-slate-500">Device Type:</span><span id="info-device" class="font-medium text-slate-200">--</span></div>
+                        <div class="flex justify-between"><span class="text-slate-500">Language:</span><span id="info-lang" class="font-mono text-slate-200">--</span></div>
+                        <div class="flex justify-between"><span class="text-slate-500">Leave Count:</span><span id="info-leaves" class="font-medium text-amber-400">0</span></div>
+                    </div>
+                </div>
+
+            </div>
+
+            <div class="p-4 rounded-2xl bg-slate-900/60 border border-white/5 space-y-3">
+                <h4 class="font-bold text-slate-300 text-[11px] uppercase tracking-wider flex items-center gap-1.5 text-emerald-400">
+                    <i data-lucide="globe" class="w-3.5 h-3.5"></i>
+                    <span>Network & Geolocation</span>
+                </h4>
+                <div class="grid grid-cols-1 sm:grid-cols-2 gap-x-6 gap-y-1.5 text-slate-300">
+                    <div class="flex justify-between"><span class="text-slate-500">IP Address:</span><span id="info-ip" class="font-mono font-bold text-white">--</span></div>
+                    <div class="flex justify-between"><span class="text-slate-500">Location:</span><span id="info-location" class="font-medium text-slate-200">--</span></div>
+                    <div class="flex justify-between"><span class="text-slate-500">City / State:</span><span id="info-city-region" class="font-medium text-slate-200">--</span></div>
+                    <div class="flex justify-between"><span class="text-slate-500">Postal / ZIP:</span><span id="info-zip" class="font-mono text-slate-200">--</span></div>
+                    <div class="flex justify-between"><span class="text-slate-500">Timezone:</span><span id="info-timezone" class="font-mono text-slate-200">--</span></div>
+                    <div class="flex justify-between"><span class="text-slate-500">Coordinates:</span><span id="info-coords" class="font-mono text-slate-200">--</span></div>
+                    <div class="flex justify-between"><span class="text-slate-500">ISP Provider:</span><span id="info-isp" class="font-medium text-slate-200 truncate max-w-[150px]">--</span></div>
+                    <div class="flex justify-between"><span class="text-slate-500">ASN / Network:</span><span id="info-asn" class="font-mono text-slate-200 truncate max-w-[150px]">--</span></div>
+                </div>
+            </div>
+
+            <div class="p-4 rounded-2xl bg-slate-900/60 border border-white/5 space-y-2">
+                <h4 class="font-bold text-slate-300 text-[11px] uppercase tracking-wider flex items-center gap-1.5 text-rose-400">
+                    <i data-lucide="shield-check" class="w-3.5 h-3.5"></i>
+                    <span>Security & Anti-Alt Telemetry</span>
+                </h4>
+                <div class="grid grid-cols-2 sm:grid-cols-4 gap-2 pt-1">
+                    <div class="p-2.5 rounded-xl bg-slate-950/50 border border-white/5 text-center">
+                        <span class="text-[10px] text-slate-500 uppercase font-semibold block">VPN / Proxy</span>
+                        <span id="info-flag-vpn" class="text-xs font-bold text-slate-300">--</span>
+                    </div>
+                    <div class="p-2.5 rounded-xl bg-slate-950/50 border border-white/5 text-center">
+                        <span class="text-[10px] text-slate-500 uppercase font-semibold block">Datacenter</span>
+                        <span id="info-flag-dc" class="text-xs font-bold text-slate-300">--</span>
+                    </div>
+                    <div class="p-2.5 rounded-xl bg-slate-950/50 border border-white/5 text-center">
+                        <span class="text-[10px] text-slate-500 uppercase font-semibold block">Cellular</span>
+                        <span id="info-flag-cell" class="text-xs font-bold text-slate-300">--</span>
+                    </div>
+                    <div class="p-2.5 rounded-xl bg-slate-950/50 border border-white/5 text-center">
+                        <span class="text-[10px] text-slate-500 uppercase font-semibold block">Blacklist</span>
+                        <span id="info-flag-bl" class="text-xs font-bold text-slate-300">--</span>
+                    </div>
+                </div>
+            </div>
+
+            <div class="p-3.5 rounded-2xl bg-slate-950/60 border border-white/5 space-y-1">
+                <span class="text-[10px] font-semibold uppercase tracking-wider text-slate-500">Raw Browser User-Agent Header</span>
+                <p id="info-ua" class="font-mono text-[11px] text-slate-400 break-all leading-relaxed">--</p>
+            </div>
+        </div>
+
+        <div class="p-4 border-t border-white/10 bg-slate-900/60 flex justify-end">
+            <button onclick="document.getElementById('member-info-modal').classList.add('hidden')" class="px-5 py-2 rounded-xl bg-white/5 hover:bg-white/10 text-white font-bold text-xs transition-colors">
+                Close
+            </button>
+        </div>
+    </div>
+</div>
+
+<div id="member-blacklist-modal" class="fixed inset-0 z-50 bg-black/60 backdrop-blur-md flex items-center justify-center p-4 hidden">
+    <div class="glass-panel w-full max-w-md rounded-3xl p-6 shadow-2xl border border-white/10 relative text-left space-y-4 animate-scale-in">
+        <div class="flex items-center justify-between border-b border-white/10 pb-3">
+            <div class="flex items-center gap-3">
+                <div class="w-9 h-9 rounded-2xl bg-rose-500/10 text-rose-400 flex items-center justify-center border border-rose-500/20">
+                    <i data-lucide="shield-alert" class="w-5 h-5"></i>
+                </div>
+                <div>
+                    <h3 class="font-bold text-sm text-white">Blacklist Member</h3>
+                    <p id="bl-modal-target-user" class="text-[11px] text-slate-400">Choose server or global</p>
+                </div>
+            </div>
+            <button type="button" onclick="closeMemberBlacklistModal()" class="w-8 h-8 rounded-full bg-white/5 hover:bg-white/10 flex items-center justify-center text-slate-400 hover:text-white transition-colors">
+                <i data-lucide="x" class="w-4 h-4"></i>
+            </button>
+        </div>
+
+        <form id="bl-modal-form" method="POST" action="" class="space-y-3 text-xs">
+            <div>
+                <label class="block font-semibold text-slate-300 mb-1">Target Server Scope</label>
+                <select name="guild_id" id="bl-modal-guild-select" class="w-full px-3 py-2 bg-slate-900 border border-slate-700 rounded-xl text-slate-200 focus:outline-none focus:border-rose-500">
+                    <option value="ALL">All Servers (Global Blacklist)</option>
+                    {% for b in available_bots %}
+                        {% for g in b.guilds %}
+                        <option value="{{ g.id }}">{{ g.name }} ({{ b.name }})</option>
+                        {% endfor %}
+                    {% endfor %}
+                </select>
+                <p class="text-[10px] text-slate-400 mt-1">Choose whether to ban and block this user across all servers or only a specific server.</p>
+            </div>
+
+            <div>
+                <label class="block font-semibold text-slate-300 mb-1">Reason</label>
+                <input type="text" name="reason" id="bl-modal-reason" placeholder="Reason for blacklist"
+                    class="w-full px-3 py-2 bg-slate-900 border border-slate-700 rounded-xl text-slate-200 placeholder-slate-600 focus:outline-none focus:border-rose-500">
+            </div>
+
+            <div class="p-3 rounded-xl bg-slate-900/60 border border-white/5 flex items-center justify-between">
+                <div>
+                    <span class="font-semibold text-white block">Block IP Address Too</span>
+                    <span class="text-[10px] text-slate-400">Block any future connections from this IP</span>
+                </div>
+                <input type="checkbox" name="block_ip" value="true" checked class="w-4 h-4 rounded bg-slate-950 border-slate-700 text-rose-600 focus:ring-0">
+            </div>
+
+            <div class="pt-2 flex items-center justify-between gap-2">
+                <button type="button" onclick="closeMemberBlacklistModal()" class="px-4 py-2 rounded-xl bg-white/5 hover:bg-white/10 text-slate-300 font-medium transition-colors">
+                    Cancel
+                </button>
+                <div class="flex items-center gap-2">
+                    <button type="submit" id="bl-modal-unblacklist-btn" class="px-4 py-2 bg-emerald-600 hover:bg-emerald-500 text-white font-bold rounded-xl shadow-lg transition-all hidden">
+                        Remove from Blacklist
+                    </button>
+                    <button type="submit" id="bl-modal-blacklist-btn" class="px-4 py-2 bg-rose-600 hover:bg-rose-500 text-white font-bold rounded-xl shadow-lg shadow-rose-600/25 transition-all">
+                        Blacklist Member
+                    </button>
+                </div>
+            </div>
+        </form>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_scripts %}
+<script>
+    let activeSocket = null;
+    let currentTaskUuid = null;
+
+    function populateInfoModal(d) {
+        if (!d) return;
+        document.getElementById('info-avatar').src = d.avatar || 'https://cdn.discordapp.com/embed/avatars/0.png';
+        document.getElementById('info-username').textContent = d.username || 'Member';
+        document.getElementById('info-userid').textContent = `ID: ${d.user_id || '--'}`;
+        document.getElementById('info-email').textContent = d.email || 'None';
+        document.getElementById('info-created').textContent = d.account_created_at || 'Unknown';
+        document.getElementById('info-age').textContent = `${d.account_age_days || 0} days (${d.account_age_years || 0} yrs)`;
+        document.getElementById('info-verified').textContent = d.verified_at || 'Recently';
+        document.getElementById('info-guild').textContent = d.source_guild_id || 'Direct';
+
+        document.getElementById('info-os').textContent = d.os || 'Unknown OS';
+        document.getElementById('info-browser').textContent = d.browser || 'Unknown Browser';
+        document.getElementById('info-device').textContent = d.device_type || 'Desktop';
+        document.getElementById('info-lang').textContent = d.accept_language || 'Default';
+        document.getElementById('info-leaves').textContent = `${d.leave_count || 0} times (Last: ${d.last_guild_left_at || 'Never'})`;
+
+        document.getElementById('info-ip').textContent = d.ip_address || '127.0.0.1';
+        document.getElementById('info-location').textContent = `${d.country || 'Unknown'} (${d.country_code || 'XX'})`;
+        document.getElementById('info-city-region').textContent = `${d.city || 'Unknown'}, ${d.region || 'Unknown'}`;
+        document.getElementById('info-zip').textContent = d.zip || 'N/A';
+        document.getElementById('info-timezone').textContent = d.timezone || 'UTC';
+        document.getElementById('info-coords').textContent = (d.lat && d.lon) ? `${d.lat}, ${d.lon}` : 'N/A';
+        document.getElementById('info-isp').textContent = d.isp || 'Unknown';
+        document.getElementById('info-asn').textContent = d.asn || 'Unknown';
+
+        const vpnEl = document.getElementById('info-flag-vpn');
+        vpnEl.textContent = d.is_vpn ? 'DETECTED' : 'CLEAN';
+        vpnEl.className = d.is_vpn ? 'text-xs font-bold text-rose-400' : 'text-xs font-bold text-emerald-400';
+
+        const dcEl = document.getElementById('info-flag-dc');
+        dcEl.textContent = (d.is_vpn || d.org?.toLowerCase().includes('hosting')) ? 'YES' : 'NO';
+        dcEl.className = dcEl.textContent === 'YES' ? 'text-xs font-bold text-amber-400' : 'text-xs font-bold text-slate-300';
+
+        const cellEl = document.getElementById('info-flag-cell');
+        cellEl.textContent = d.is_cellular ? 'LTE / 5G' : 'NO';
+        cellEl.className = d.is_cellular ? 'text-xs font-bold text-sky-400' : 'text-xs font-bold text-slate-300';
+
+        const blEl = document.getElementById('info-flag-bl');
+        blEl.textContent = d.is_blacklisted ? 'BLOCKED' : 'ALLOWED';
+        blEl.className = d.is_blacklisted ? 'text-xs font-bold text-rose-400' : 'text-xs font-bold text-emerald-400';
+
+        document.getElementById('info-ua').textContent = d.user_agent || 'None recorded';
+
+        document.getElementById('member-info-modal').classList.remove('hidden');
+        if (window.lucide) {
+            lucide.createIcons();
+        }
+    }
+
+    function showMemberInfo(btn) {
+        try {
+            const raw = btn.getAttribute('data-member-info');
+            if (raw) {
+                const d = JSON.parse(raw);
+                populateInfoModal(d);
+                return;
+            }
+        } catch(e) {
+            console.error('Error parsing data-member-info', e);
+        }
+    }
+
+    async function viewMemberInfo(memberId) {
+        try {
+            const res = await fetch(`/api/members/${memberId}/info`);
+            if (res.ok) {
+                const d = await res.json();
+                populateInfoModal(d);
+                return;
+            }
+        } catch(e) {
+            console.error('Failed to load member info', e);
+        }
+    }
+
+    function openMemberBlacklistModal(memberId, username, userId, sourceGuildId, isBlacklisted) {
+        const modal = document.getElementById('member-blacklist-modal');
+        const form = document.getElementById('bl-modal-form');
+        const userLabel = document.getElementById('bl-modal-target-user');
+        const guildSelect = document.getElementById('bl-modal-guild-select');
+        const unblBtn = document.getElementById('bl-modal-unblacklist-btn');
+        const blBtn = document.getElementById('bl-modal-blacklist-btn');
+
+        userLabel.textContent = `${username} (ID: ${userId})`;
+        form.action = `/members/${memberId}/blacklist`;
+
+        if (sourceGuildId && guildSelect) {
+            for (let i = 0; i < guildSelect.options.length; i++) {
+                if (guildSelect.options[i].value === sourceGuildId) {
+                    guildSelect.selectedIndex = i;
+                    break;
+                }
+            }
+        }
+
+        if (isBlacklisted) {
+            unblBtn.classList.remove('hidden');
+            unblBtn.onclick = function(e) {
+                e.preventDefault();
+                form.action = `/members/${memberId}/unblacklist`;
+                form.submit();
+            };
+            blBtn.textContent = 'Update Blacklist';
+        } else {
+            unblBtn.classList.add('hidden');
+            blBtn.textContent = 'Blacklist Member';
+        }
+
+        modal.classList.remove('hidden');
+        if (window.lucide) lucide.createIcons();
+    }
+
+    function closeMemberBlacklistModal() {
+        document.getElementById('member-blacklist-modal').classList.add('hidden');
+    }
+
+    async function generateTokenPreview() {
+        const botId = document.getElementById('export-bot-id').value;
+        const format = document.getElementById('export-format').value;
+        const onlyActive = document.getElementById('export-only-active').checked;
+        const previewBox = document.getElementById('export-output-preview');
+
+        previewBox.value = 'Fetching and decrypting tokens...';
+
+        const formData = new FormData();
+        formData.append('bot_id', botId);
+        formData.append('export_format', format);
+        formData.append('only_active', onlyActive ? 'true' : 'false');
+        formData.append('download', 'false');
+
+        try {
+            const res = await fetch('/api/tokens/export', {
+                method: 'POST',
+                body: formData,
+            });
+            if (res.ok) {
+                const data = await res.json();
+                previewBox.value = data.content || 'No tokens matched your filter.';
+            } else {
+                previewBox.value = 'Error fetching tokens.';
+            }
+        } catch (e) {
+            previewBox.value = 'Network error while exporting tokens.';
+        }
+    }
+
+    function copyExportedTokens() {
+        const previewBox = document.getElementById('export-output-preview');
+        if (!previewBox.value || previewBox.value.startsWith('Error') || previewBox.value.startsWith('Fetching')) {
+            generateTokenPreview().then(() => {
+                if (previewBox.value) {
+                    navigator.clipboard.writeText(previewBox.value);
+                    if (window.showToast) showToast('Tokens copied to clipboard!', 'success');
+                }
+            });
+            return;
+        }
+        navigator.clipboard.writeText(previewBox.value);
+        if (window.showToast) showToast('Tokens copied to clipboard!', 'success');
+    }
+
+    function populateTargetGuilds() {
+        const botSelect = document.getElementById('modal-bot-select');
+        const guildSelect = document.getElementById('modal-target-guild');
+        if (!botSelect || !guildSelect) return;
+
+        guildSelect.innerHTML = '';
+        const selectedOption = botSelect.options[botSelect.selectedIndex];
+        if (!selectedOption) return;
+
+        const guildsData = JSON.parse(selectedOption.getAttribute('data-guilds') || '[]');
+        if (guildsData.length === 0) {
+            const opt = document.createElement('option');
+            opt.value = '';
+            opt.textContent = 'No servers found for this bot';
+            guildSelect.appendChild(opt);
+        } else {
+            guildsData.forEach(g => {
+                const opt = document.createElement('option');
+                opt.value = g.id;
+                opt.textContent = g.name;
+                guildSelect.appendChild(opt);
+            });
+        }
+    }
+
+    function colorizeLog(text) {
+        let colorClass = 'text-slate-300';
+        if (text.includes('[SUCCESS]')) colorClass = 'text-emerald-400 font-semibold';
+        else if (text.includes('[ALREADY IN SERVER]')) colorClass = 'text-sky-400';
+        else if (text.includes('[UNAUTHORIZED]') || text.includes('[MAX GUILDS]') || text.includes('[BANNED/FORBIDDEN]') || text.includes('[PERMISSIONS ERROR]')) colorClass = 'text-rose-400 font-semibold';
+        else if (text.includes('[RATE LIMIT]') || text.includes('[PAUSE]')) colorClass = 'text-amber-400';
+        else if (text.includes('[*]')) colorClass = 'text-indigo-300';
+        else if (text.includes('[COMPLETED]')) colorClass = 'text-emerald-300 font-bold';
+        
+        return `<div class="text-[11px] font-mono leading-tight py-0.5 ${colorClass}">${escapeHtml(text)}</div>`;
+    }
+
+    function escapeHtml(str) {
+        return str.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;");
+    }
+
+    let migrationPollInterval = null;
+
+    function renderMigrationState(data) {
+        if (!data) return;
+        const panel = document.getElementById('live-progress-panel');
+        if (panel) panel.classList.remove('hidden');
+
+        if (data.progress !== undefined) {
+            const pct = Math.min(100, Math.max(0, data.progress));
+            document.getElementById('progress-percent').textContent = pct + '%';
+            document.getElementById('progress-bar-fill').style.width = pct + '%';
+        } else if (data.total && data.total > 0) {
+            const completed = (data.success || 0) + (data.already || data.already_in || 0) + (data.failed || 0);
+            const pct = Math.min(100, Math.round((completed / data.total) * 100));
+            document.getElementById('progress-percent').textContent = pct + '%';
+            document.getElementById('progress-bar-fill').style.width = pct + '%';
+        }
+
+        if (data.success !== undefined) document.getElementById('count-success').textContent = data.success;
+        const alreadyCount = data.already !== undefined ? data.already : (data.already_in !== undefined ? data.already_in : 0);
+        document.getElementById('count-already').textContent = alreadyCount;
+        if (data.failed !== undefined) document.getElementById('count-failed').textContent = data.failed;
+        const rlCount = data.rate_limits !== undefined ? data.rate_limits : (data.rate_limited !== undefined ? data.rate_limited : 0);
+        document.getElementById('count-rate-limit').textContent = rlCount;
+        if (data.speed !== undefined) document.getElementById('pull-speed').textContent = data.speed;
+
+        if (data.status === 'PAUSED') {
+            document.getElementById('btn-pause').classList.add('hidden');
+            document.getElementById('btn-resume').classList.remove('hidden');
+        } else if (data.status === 'RUNNING' || data.status === 'RATE_LIMITED') {
+            document.getElementById('btn-pause').classList.remove('hidden');
+            document.getElementById('btn-resume').classList.add('hidden');
+        }
+
+        const consoleElem = document.getElementById('worker-console');
+        if (consoleElem && data.logs && Array.isArray(data.logs) && data.logs.length > 0) {
+            consoleElem.innerHTML = data.logs.map(colorizeLog).join('');
+            consoleElem.scrollTop = consoleElem.scrollHeight;
+        }
+
+        if (data.status === 'COMPLETED' || data.status === 'STOPPED') {
+            if (migrationPollInterval) clearInterval(migrationPollInterval);
+        }
+    }
+
+    function startLiveStreaming(taskUuid) {
+        currentTaskUuid = taskUuid;
+        const panel = document.getElementById('live-progress-panel');
+        if (panel) panel.classList.remove('hidden');
+        document.getElementById('active-task-uuid').textContent = taskUuid;
+
+        if (activeSocket) {
+            try { activeSocket.close(); } catch(e) {}
+        }
+        if (migrationPollInterval) clearInterval(migrationPollInterval);
+
+        const protocol = window.location.protocol === 'https:' ? 'wss:' : 'ws:';
+        const wsUrl = `${protocol}//${window.location.host}/ws/migrations/${taskUuid}`;
+        activeSocket = new WebSocket(wsUrl);
+
+        const consoleElem = document.getElementById('worker-console');
+        consoleElem.innerHTML = '<div class="text-slate-500 py-1">Connecting to live task stream...</div>';
+
+        activeSocket.onopen = function() {
+            document.getElementById('ws-status-text').textContent = 'Live Connected';
+            document.getElementById('ws-status-text').className = 'text-emerald-400 font-bold';
+        };
+
+        activeSocket.onmessage = function(event) {
+            try {
+                const data = JSON.parse(event.data);
+                renderMigrationState(data);
+            } catch(e) {
+                console.error("WS parse error", e);
+            }
+        };
+
+        activeSocket.onerror = function() {
+            document.getElementById('ws-status-text').textContent = 'Polling Active';
+            document.getElementById('ws-status-text').className = 'text-amber-400 font-semibold';
+        };
+
+        activeSocket.onclose = function() {
+            document.getElementById('ws-status-text').textContent = 'Live Stream Closed';
+            document.getElementById('ws-status-text').className = 'text-slate-400';
+        };
+
+        migrationPollInterval = setInterval(async () => {
+            try {
+                const res = await fetch(`/api/migrations/${taskUuid}/status`);
+                if (res.ok) {
+                    const data = await res.json();
+                    renderMigrationState(data);
+                }
+            } catch(e) {}
+        }, 1200);
+    }
+
+    async function controlActiveTask(action) {
+        if (!currentTaskUuid) return;
+        const form = new FormData();
+        form.append('action', action);
+        try {
+            await fetch(`/migrations/${currentTaskUuid}/control`, {
+                method: 'POST',
+                body: form
+            });
+        } catch(e) {
+            console.error("Control task error", e);
+        }
+    }
+
+    function filterMembersTable(term) {
+        const query = (term || '').toLowerCase().trim();
+        const rows = document.querySelectorAll('.member-table-row');
+        rows.forEach(row => {
+            const text = row.getAttribute('data-search') || '';
+            if (!query || text.includes(query)) {
+                row.style.display = '';
+            } else {
+                row.style.display = 'none';
+            }
+        });
+    }
+
+    document.addEventListener('DOMContentLoaded', () => {
+        populateTargetGuilds();
+        const urlParams = new URLSearchParams(window.location.search);
+        const activeTask = urlParams.get('active');
+        if (activeTask) {
+            startLiveStreaming(activeTask);
+        }
+    });
+</script>
+{% endblock %}

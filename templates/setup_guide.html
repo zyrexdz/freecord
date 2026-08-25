@@ -1,0 +1,734 @@
+{% extends "base.html" %}
+
+{% block title %}Setup Guide - FreeCord{% endblock %}
+{% block page_title %}Discord Bot Setup Guide{% endblock %}
+
+{% block content %}
+<div class="max-w-4xl mx-auto space-y-8">
+
+    
+    <div class="glass-panel rounded-3xl p-6 sm:p-7 relative overflow-hidden border border-white/10 bg-gradient-to-r from-indigo-500/10 via-slate-900/60 to-emerald-500/10">
+        <div class="flex items-start gap-4">
+            <div class="w-12 h-12 rounded-2xl bg-indigo-500/20 text-indigo-400 flex items-center justify-center shrink-0 border border-indigo-500/30 shadow-lg shadow-indigo-500/10">
+                <i data-lucide="book-open" class="w-6 h-6"></i>
+            </div>
+            <div>
+                <span class="px-2 py-0.5 rounded-full text-[10px] uppercase font-bold bg-indigo-500/20 text-indigo-300 border border-indigo-500/30">Step by Step Guide</span>
+                <h2 class="text-xl font-bold text-white mt-1">Discord Developer Portal Setup</h2>
+                <p class="text-xs text-slate-300 mt-1 max-w-2xl leading-relaxed">
+                    Follow this exact visual guide to configure your Discord bot in under 3 minutes. Each step shows the exact buttons and toggles in the Discord Developer Portal.
+                </p>
+            </div>
+        </div>
+    </div>
+
+    
+    
+    
+    <div class="glass-panel rounded-3xl p-6 border border-white/10 space-y-4">
+        <div class="flex items-center justify-between border-b border-white/10 pb-3">
+            <div class="flex items-center gap-3">
+                <span class="w-8 h-8 rounded-xl bg-indigo-500/20 text-indigo-400 font-bold flex items-center justify-center text-sm border border-indigo-500/30">1</span>
+                <h3 class="text-base font-bold text-white">Create Discord Application</h3>
+            </div>
+            <a href="https://discord.com/developers/applications" target="_blank" class="px-3.5 py-1.5 rounded-xl bg-indigo-600 hover:bg-indigo-500 text-white text-xs font-semibold flex items-center gap-1.5 transition-colors shadow-md">
+                <span>Open Discord Portal</span>
+                <i data-lucide="external-link" class="w-3.5 h-3.5"></i>
+            </a>
+        </div>
+        <p class="text-xs text-slate-300">
+            1. Open the <a href="https://discord.com/developers/applications" target="_blank" class="text-indigo-400 underline font-semibold">Discord Developer Portal</a> in your browser.<br>
+            2. Click the blue <strong class="text-white">"New Application"</strong> button in the top right corner.<br>
+            3. Name your application (for example <code class="text-indigo-300 font-mono">freecord</code>) and accept the Terms.
+        </p>
+    </div>
+
+    
+    
+    
+    <div class="glass-panel rounded-3xl p-6 border border-white/10 space-y-4">
+        <div class="flex items-center justify-between border-b border-white/10 pb-3">
+            <div class="flex items-center gap-3">
+                <span class="w-8 h-8 rounded-xl bg-indigo-500/20 text-indigo-400 font-bold flex items-center justify-center text-sm border border-indigo-500/30">2</span>
+                <h3 class="text-base font-bold text-white">Get Bot Token & Configure Bot Tab</h3>
+            </div>
+            <span class="px-2 py-0.5 text-[10px] font-bold rounded-lg bg-indigo-500/20 text-indigo-300 border border-indigo-500/30">Bot Tab</span>
+        </div>
+
+        <p class="text-xs text-slate-300">
+            Click on <strong class="text-white">Bot</strong> in the left sidebar. Click <strong class="text-white">Reset Token</strong> to copy your secret Bot Token. Make sure <strong class="text-rose-400">Requires OAuth2 Code Grant</strong> is <strong>OFF</strong>.
+        </p>
+
+        
+        <div class="rounded-2xl bg-[#1e1f22] border border-slate-700/60 overflow-hidden shadow-2xl text-xs font-sans">
+            
+            <div class="bg-[#141517] px-4 py-2.5 border-b border-slate-800 flex items-center justify-between text-slate-400 text-[11px]">
+                <div class="flex items-center gap-2 font-bold text-slate-200">
+                    <i data-lucide="bot" class="w-4 h-4 text-indigo-400"></i>
+                    <span>DISCORD DEVELOPER PORTAL</span>
+                </div>
+                <div class="flex items-center gap-3">
+                    <span class="px-2 py-0.5 rounded bg-slate-800 text-slate-300">+ Create</span>
+                    <span>Docs</span>
+                    <span class="w-4 h-4 rounded-full bg-emerald-500"></span>
+                </div>
+            </div>
+
+            <div class="grid grid-cols-1 md:grid-cols-12 min-h-[220px]">
+                
+                <div class="md:col-span-4 bg-[#18191c] p-3.5 border-r border-slate-800 space-y-1 text-slate-400 text-[11px]">
+                    <div class="text-[10px] text-slate-500 uppercase font-bold px-2 py-1">Overview</div>
+                    <div class="px-2.5 py-1.5 rounded text-slate-400">General Information</div>
+                    <div class="px-2.5 py-1.5 rounded text-slate-400">OAuth2</div>
+                    
+                    <div class="px-2.5 py-1.5 rounded bg-[#2b2d31] text-white font-bold flex items-center justify-between border-l-2 border-indigo-500">
+                        <div class="flex items-center gap-2">
+                            <i data-lucide="bot" class="w-3.5 h-3.5 text-indigo-400"></i>
+                            <span>Bot</span>
+                        </div>
+                        <span class="w-4 h-4 rounded-full bg-indigo-600 text-white text-[9px] font-extrabold flex items-center justify-center">1</span>
+                    </div>
+                </div>
+
+                
+                <div class="md:col-span-8 p-4 space-y-3 bg-[#1e1f22]">
+                    <div>
+                        <div class="text-[10px] uppercase font-bold text-slate-400">Username</div>
+                        <div class="font-bold text-white text-sm">freecord <span class="text-slate-500 font-normal text-xs">#5882</span></div>
+                    </div>
+
+                    
+                    <div class="p-3 rounded-xl bg-[#2b2d31] border border-slate-700/60 space-y-2">
+                        <div class="text-[11px] text-slate-300">Token</div>
+                        <div class="flex items-center justify-between">
+                            <span class="font-mono text-slate-500 text-[11px]">MTA3MDE1Mzg••••••••••••••••</span>
+                            <div class="flex items-center gap-2">
+                                <span class="px-3 py-1 rounded bg-indigo-600 text-white font-bold text-xs shadow-md">Reset Token</span>
+                                <span class="w-4 h-4 rounded-full bg-indigo-500 text-white text-[9px] font-extrabold flex items-center justify-center">2</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    
+                    <div class="space-y-1.5 pt-1 text-[11px]">
+                        <div class="flex items-center justify-between p-2 rounded bg-[#2b2d31]/60">
+                            <div>
+                                <span class="text-white font-semibold">Public Bot</span>
+                                <p class="text-[10px] text-slate-400">Can be installed by anyone</p>
+                            </div>
+                            <span class="w-8 h-4 rounded-full bg-indigo-600 flex items-center justify-end px-0.5"><span class="w-3 h-3 rounded-full bg-white"></span></span>
+                        </div>
+                        <div class="flex items-center justify-between p-2 rounded bg-rose-500/10 border border-rose-500/30">
+                            <div>
+                                <span class="text-white font-semibold">Requires OAuth2 Code Grant</span>
+                                <p class="text-[10px] text-rose-300">KEEP THIS OFF (Unchecked)</p>
+                            </div>
+                            <span class="w-8 h-4 rounded-full bg-slate-700 flex items-center justify-start px-0.5"><span class="w-3 h-3 rounded-full bg-slate-400"></span></span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    
+    
+    
+    <div class="glass-panel rounded-3xl p-6 border border-white/10 space-y-4">
+        <div class="flex items-center justify-between border-b border-white/10 pb-3">
+            <div class="flex items-center gap-3">
+                <span class="w-8 h-8 rounded-xl bg-indigo-500/20 text-indigo-400 font-bold flex items-center justify-center text-sm border border-indigo-500/30">3</span>
+                <h3 class="text-base font-bold text-white">OAuth2 Client Secret & Redirect URL</h3>
+            </div>
+            <span class="px-2 py-0.5 text-[10px] font-bold rounded-lg bg-indigo-500/20 text-indigo-300 border border-indigo-500/30">OAuth2 Tab</span>
+        </div>
+
+        <p class="text-xs text-slate-300">
+            Click on <strong class="text-white">OAuth2 &rarr; General</strong>. Copy your <strong class="text-white">Client ID</strong> and click <strong class="text-white">Reset Secret</strong> to copy your <strong class="text-white">Client Secret</strong>. Under <strong class="text-white">Redirects</strong>, click <strong class="text-white">Add Redirect</strong> and paste your FreeCord callback URL.
+        </p>
+
+        <div class="rounded-2xl overflow-hidden border border-slate-700/80 shadow-2xl bg-[#1e1f22] text-xs">
+            <div class="p-3 bg-[#111214] border-b border-slate-700/60 flex items-center justify-between">
+                <div class="flex items-center gap-2 text-slate-300 font-bold text-[11px] tracking-wide">
+                    <i data-lucide="bot" class="w-4 h-4 text-indigo-400"></i>
+                    <span>DISCORD DEVELOPER PORTAL</span>
+                </div>
+                <div class="flex items-center gap-2">
+                    <span class="text-[10px] text-slate-400 px-2 py-0.5 rounded bg-white/5">+ Create</span>
+                    <span class="text-[10px] text-slate-400">Docs</span>
+                    <span class="w-3.5 h-3.5 rounded-full bg-emerald-500 inline-block"></span>
+                </div>
+            </div>
+
+            <div class="grid grid-cols-1 md:grid-cols-12 divide-y md:divide-y-0 md:divide-x divide-slate-700/60">
+                <div class="md:col-span-4 p-3.5 space-y-1.5 bg-[#18191c] text-[11px]">
+                    <div class="text-[10px] text-slate-500 uppercase font-bold px-2 py-1">Overview</div>
+                    <div class="px-2.5 py-1.5 rounded text-slate-400">General Information</div>
+                    
+                    <div class="px-2.5 py-1.5 rounded bg-[#2b2d31] text-white font-bold flex items-center justify-between border-l-2 border-indigo-500 shadow-sm">
+                        <div class="flex items-center gap-2">
+                            <i data-lucide="link" class="w-3.5 h-3.5 text-indigo-400"></i>
+                            <span>OAuth2 &rarr; General</span>
+                        </div>
+                        <span class="w-4 h-4 rounded-full bg-indigo-600 text-white text-[9px] font-extrabold flex items-center justify-center">1</span>
+                    </div>
+
+                    <div class="px-2.5 py-1.5 rounded text-slate-400 flex items-center gap-2">
+                        <i data-lucide="bot" class="w-3.5 h-3.5 text-slate-500"></i>
+                        <span>Bot</span>
+                    </div>
+                </div>
+
+                <div class="md:col-span-8 p-4 space-y-3 bg-[#1e1f22]">
+                    <div>
+                        <div class="text-[10px] uppercase font-bold text-slate-400">Client Information</div>
+                        <div class="font-bold text-white text-sm">OAuth2 Application Settings</div>
+                    </div>
+
+                    <div class="p-3 rounded-xl bg-[#2b2d31] border border-slate-700/60 space-y-2">
+                        <div class="text-[11px] text-slate-300">Client Secret</div>
+                        <div class="flex items-center justify-between">
+                            <span class="font-mono text-slate-500 text-[11px]">••••••••••••••••••••••••</span>
+                            <div class="flex items-center gap-2">
+                                <span class="px-3 py-1 rounded bg-indigo-600 text-white font-bold text-xs shadow-md">Reset Secret</span>
+                                <span class="w-4 h-4 rounded-full bg-indigo-500 text-white text-[9px] font-extrabold flex items-center justify-center">2</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="p-3 rounded-xl bg-[#2b2d31] border border-emerald-500/40 space-y-2">
+                        <div class="flex items-center justify-between">
+                            <span class="text-[11px] text-white font-bold">Redirects</span>
+                            <span class="px-1.5 py-0.5 rounded bg-emerald-500/20 text-emerald-400 text-[9px] font-bold">Add Redirect</span>
+                        </div>
+                        <div class="p-2 rounded-lg bg-[#111214] border border-emerald-500/80 flex items-center justify-between gap-2 shadow-inner">
+                            <span class="font-mono text-[10px] text-emerald-400 truncate">{{ net_info.redirect_url }}</span>
+                            <span class="px-1.5 py-0.5 rounded bg-emerald-500/20 text-emerald-300 font-extrabold text-[8px] shrink-0">PASTE HERE</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="p-4 rounded-2xl bg-slate-900/80 border border-white/10 space-y-2">
+            <p class="font-semibold text-white text-xs">Copy your detected FreeCord Redirect URL:</p>
+            <div class="flex items-center gap-2">
+                <input type="text" id="guide-redirect-uri" readonly value="{{ net_info.redirect_url }}"
+                    class="flex-1 px-3.5 py-2.5 bg-slate-950 border border-slate-700 rounded-xl font-mono text-xs text-emerald-400 focus:outline-none select-all">
+                <button onclick="copyToClipboard('{{ net_info.redirect_url }}', 'Redirect URL copied!')"
+                    class="px-4 py-2.5 bg-indigo-600 hover:bg-indigo-500 text-white rounded-xl text-xs font-semibold flex items-center gap-1.5 transition-colors shadow-md shrink-0">
+                    <i data-lucide="copy" class="w-4 h-4"></i>
+                    <span>Copy URL</span>
+                </button>
+            </div>
+            <p class="text-[11px] text-slate-400">
+                * Paste this URL after clicking <strong>Add Redirect</strong> in Discord Portal, then click the green <strong>Save Changes</strong> button.
+            </p>
+        </div>
+    </div>
+
+    
+    
+    
+    <div class="glass-panel rounded-3xl p-6 border border-white/10 space-y-4">
+        <div class="flex items-center justify-between border-b border-white/10 pb-3">
+            <div class="flex items-center gap-3">
+                <span class="w-8 h-8 rounded-xl bg-indigo-500/20 text-indigo-400 font-bold flex items-center justify-center text-sm border border-indigo-500/30">4</span>
+                <h3 class="text-base font-bold text-white">Privileged Gateway Intents</h3>
+            </div>
+            <span class="px-2 py-0.5 text-[10px] font-bold rounded-lg bg-emerald-500/20 text-emerald-300 border border-emerald-500/30">Required</span>
+        </div>
+
+        <p class="text-xs text-slate-300">
+            Scroll down to <strong class="text-white">Privileged Gateway Intents</strong> on the <strong class="text-white">Bot</strong> tab and enable both switches below:
+        </p>
+
+        
+        <div class="rounded-2xl bg-[#1e1f22] border border-slate-700/60 p-4 shadow-2xl space-y-3 text-xs font-sans">
+            <div class="text-[11px] font-bold text-slate-300 uppercase tracking-wide">Privileged Gateway Intents</div>
+
+            <div class="p-3 rounded-xl bg-[#2b2d31] flex items-center justify-between border border-emerald-500/40">
+                <div>
+                    <span class="font-bold text-white">Server Members Intent</span>
+                    <p class="text-[10px] text-slate-400">Required to read members and assign the Verified role</p>
+                </div>
+                <div class="flex items-center gap-2">
+                    <span class="w-10 h-5 rounded-full bg-indigo-600 flex items-center justify-end px-0.5 shadow"><span class="w-4 h-4 rounded-full bg-white shadow-sm"></span></span>
+                    <span class="px-2 py-0.5 bg-emerald-500 text-slate-950 font-extrabold text-[9px] rounded">ON</span>
+                </div>
+            </div>
+
+            <div class="p-3 rounded-xl bg-[#2b2d31] flex items-center justify-between border border-emerald-500/40">
+                <div>
+                    <span class="font-bold text-white">Message Content Intent</span>
+                    <p class="text-[10px] text-slate-400">Required to archive channel message history during backups</p>
+                </div>
+                <div class="flex items-center gap-2">
+                    <span class="w-10 h-5 rounded-full bg-indigo-600 flex items-center justify-end px-0.5 shadow"><span class="w-4 h-4 rounded-full bg-white shadow-sm"></span></span>
+                    <span class="px-2 py-0.5 bg-emerald-500 text-slate-950 font-extrabold text-[9px] rounded">ON</span>
+                </div>
+            </div>
+
+            
+            <div class="p-2.5 rounded-xl bg-slate-950 border border-slate-800 flex items-center justify-between text-[11px]">
+                <span class="text-amber-400 flex items-center gap-1.5">
+                    <i data-lucide="alert-circle" class="w-3.5 h-3.5"></i>
+                    <span>Careful, you have unsaved changes!</span>
+                </span>
+                <span class="px-3 py-1 rounded bg-emerald-600 text-white font-bold text-xs shadow-md">Save Changes</span>
+            </div>
+        </div>
+    </div>
+
+    
+    
+    
+    <div class="glass-panel rounded-3xl p-6 border border-white/10 space-y-4">
+        <div class="flex items-center justify-between border-b border-white/10 pb-3">
+            <div class="flex items-center gap-3">
+                <span class="w-8 h-8 rounded-xl bg-indigo-500/20 text-indigo-400 font-bold flex items-center justify-center text-sm border border-indigo-500/30">5</span>
+                <h3 class="text-base font-bold text-white">Bot Invite Generator</h3>
+            </div>
+        </div>
+        <p class="text-xs text-slate-300">
+            Enter your Bot's Client ID below to generate a pre-configured Administrator invite link:
+        </p>
+        <div class="flex flex-col sm:flex-row items-center gap-2">
+            <input type="text" id="invite-client-id" placeholder="Paste your Client ID here (e.g. 1540801784132403290)..."
+                class="w-full sm:w-96 px-3.5 py-2.5 bg-slate-900 border border-slate-700 rounded-xl font-mono text-xs text-white placeholder-slate-500 focus:outline-none focus:border-indigo-500">
+            <button onclick="generateBotInvite()"
+                class="w-full sm:w-auto px-4 py-2.5 bg-emerald-600 hover:bg-emerald-500 text-white rounded-xl text-xs font-semibold flex items-center justify-center gap-1.5 transition-colors shadow-lg shadow-emerald-600/20">
+                <i data-lucide="send" class="w-4 h-4"></i>
+                <span>Invite to Discord Server</span>
+            </button>
+        </div>
+
+        {% include "components/role_hierarchy_demo.html" %}
+    </div>
+
+    {% if user.role == 'admin' or user.id == 1 %}
+    <div class="glass-panel rounded-3xl p-6 border border-white/10 space-y-6">
+        <div class="flex items-center justify-between border-b border-white/10 pb-4">
+            <div class="flex items-center gap-3">
+                <span class="w-8 h-8 rounded-xl bg-indigo-500/20 text-indigo-400 font-bold flex items-center justify-center text-sm border border-indigo-500/30">6</span>
+                <div>
+                    <h3 class="text-base font-bold text-white">How to Setup Captchas Step by Step</h3>
+                    <p class="text-xs text-slate-400">Stop raid bots with 1-click challenges</p>
+                </div>
+            </div>
+            <span class="px-2.5 py-0.5 text-[10px] font-bold rounded-lg bg-indigo-500/20 text-indigo-300 border border-indigo-500/30">Bot Protection</span>
+        </div>
+
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-5">
+            <div class="p-5 rounded-2xl bg-slate-900/90 border border-indigo-500/30 space-y-3 relative overflow-hidden">
+                <div class="flex items-center justify-between">
+                    <div class="flex items-center gap-2">
+                        <div class="w-7 h-7 rounded-lg bg-indigo-500/20 text-indigo-400 flex items-center justify-center font-bold text-xs">A</div>
+                        <h4 class="font-bold text-white text-sm">Cloudflare Turnstile (Recommended)</h4>
+                    </div>
+                    <span class="px-2 py-0.5 rounded-full text-[9px] font-extrabold bg-emerald-500/20 text-emerald-300 border border-emerald-500/30">100% Free & No Images</span>
+                </div>
+                <p class="text-xs text-slate-300 leading-relaxed">
+                    Turnstile is invisible to real users and only shows a fast 1-second checkbox. Zero annoying traffic light or motorcycle picture puzzles.
+                </p>
+                <div class="p-3.5 rounded-xl bg-slate-950/80 border border-white/5 space-y-2 text-xs">
+                    <p class="font-semibold text-white text-[11px] uppercase tracking-wider">Exact Steps:</p>
+                    <ol class="list-decimal list-inside space-y-1.5 text-slate-300 text-[11px]">
+                        <li>Go to <a href="https://dash.cloudflare.com" target="_blank" class="text-indigo-400 underline font-semibold">dash.cloudflare.com</a> and sign in.</li>
+                        <li>Click <strong class="text-white">Turnstile</strong> in the left sidebar navigation.</li>
+                        <li>Click the blue <strong class="text-white">Add Widget</strong> button.</li>
+                        <li>Give it any widget name (like <code class="text-indigo-300 font-mono">FreeCord Verify</code>).</li>
+                        <li>Under <strong class="text-white">Domains</strong>, add your domain or tunnel host (like <code class="text-emerald-400 font-mono">ngrok-free.app</code>, <code class="text-emerald-400 font-mono">loca.lt</code>, or your VPS IP/domain).</li>
+                        <li>Select <strong class="text-white">Managed</strong> widget type and click <strong class="text-white">Create</strong>.</li>
+                        <li>Copy the <strong class="text-emerald-400">Site Key</strong> (e.g. <code>0x4AAAA...</code>) and <strong class="text-emerald-400">Secret Key</strong>.</li>
+                        <li>Open FreeCord <a href="/settings" class="text-indigo-400 underline font-semibold">Settings &rarr; Security</a>, paste both keys, and toggle Turnstile ON!</li>
+                    </ol>
+                </div>
+            </div>
+
+            <div class="p-5 rounded-2xl bg-slate-900/90 border border-amber-500/30 space-y-3 relative overflow-hidden">
+                <div class="flex items-center justify-between">
+                    <div class="flex items-center gap-2">
+                        <div class="w-7 h-7 rounded-lg bg-amber-500/20 text-amber-400 flex items-center justify-center font-bold text-xs">B</div>
+                        <h4 class="font-bold text-white text-sm">hCaptcha Challenge</h4>
+                    </div>
+                    <span class="px-2 py-0.5 rounded-full text-[9px] font-extrabold bg-amber-500/20 text-amber-300 border border-amber-500/30">Alternative</span>
+                </div>
+                <p class="text-xs text-slate-300 leading-relaxed">
+                    hCaptcha requires users to click matching picture tiles. Great for high-threat verification rooms.
+                </p>
+                <div class="p-3.5 rounded-xl bg-slate-950/80 border border-white/5 space-y-2 text-xs">
+                    <p class="font-semibold text-white text-[11px] uppercase tracking-wider">Exact Steps:</p>
+                    <ol class="list-decimal list-inside space-y-1.5 text-slate-300 text-[11px]">
+                        <li>Create a free account at <a href="https://www.hcaptcha.com" target="_blank" class="text-amber-400 underline font-semibold">hcaptcha.com</a>.</li>
+                        <li>Click <strong class="text-white">Sites</strong> in the top navigation &rarr; <strong class="text-white">New Site</strong>.</li>
+                        <li>Add your domain/tunnel address under hostnames.</li>
+                        <li>Set difficulty to <strong class="text-white">Moderate</strong> or <strong class="text-white">Easy</strong>.</li>
+                        <li>Click <strong class="text-white">Save</strong> and copy your <strong class="text-amber-400">Sitekey</strong>.</li>
+                        <li>Click your profile icon &rarr; <strong class="text-white">Settings</strong> &rarr; copy your <strong class="text-amber-400">Secret Key</strong>.</li>
+                        <li>Open FreeCord <a href="/settings" class="text-indigo-400 underline font-semibold">Settings &rarr; Security</a>, paste both keys, and toggle hCaptcha ON!</li>
+                    </ol>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="glass-panel rounded-3xl p-6 border border-white/10 space-y-6">
+        <div class="flex items-center justify-between border-b border-white/10 pb-4">
+            <div class="flex items-center gap-3">
+                <span class="w-8 h-8 rounded-xl bg-indigo-500/20 text-indigo-400 font-bold flex items-center justify-center text-sm border border-indigo-500/30">7</span>
+                <div>
+                    <h3 class="text-base font-bold text-white">Anti-Fraud, Anti-VPN & IPQualityScore Setup</h3>
+                    <p class="text-xs text-slate-400">Deep dive into how FreeCord protects your servers</p>
+                </div>
+            </div>
+            <span class="px-2.5 py-0.5 text-[10px] font-bold rounded-lg bg-emerald-500/20 text-emerald-300 border border-emerald-500/30">Multi Engine</span>
+        </div>
+
+        <div class="space-y-4 text-xs text-slate-300">
+            <div class="p-4 rounded-2xl bg-slate-900/80 border border-emerald-500/30 space-y-2">
+                <div class="flex items-center gap-2">
+                    <i data-lucide="shield-check" class="w-4 h-4 text-emerald-400"></i>
+                    <h4 class="font-bold text-white text-sm">Do I have Anti-VPN enabled by default?</h4>
+                </div>
+                <p class="leading-relaxed">
+                    <strong class="text-emerald-400 font-bold">YES!</strong> FreeCord has built-in offline datacenter ASN intelligence active with zero extra configuration. It automatically detects and blocks known VPN providers, datacenter hosting servers (like AWS, Hetzner, OVH, DigitalOcean), and proxy exit nodes.
+                </p>
+            </div>
+
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <div class="p-4 rounded-2xl bg-slate-900/80 border border-white/5 space-y-2.5">
+                    <div class="flex items-center gap-2">
+                        <div class="w-6 h-6 rounded-lg bg-sky-500/20 text-sky-400 flex items-center justify-center font-bold text-xs">1</div>
+                        <h4 class="font-bold text-white">How to connect IPQualityScore (IPQS) or ProxyCheck</h4>
+                    </div>
+                    <p class="text-slate-400 text-[11px] leading-relaxed">
+                        If you want commercial grade fraud scoring with 99.9% VPN coverage:
+                    </p>
+                    <ol class="list-decimal list-inside space-y-1.5 text-slate-300 text-[11px]">
+                        <li>Sign up for a free API key at <a href="https://proxycheck.io" target="_blank" class="text-sky-400 underline">proxycheck.io</a> or <a href="https://ipqualityscore.com" target="_blank" class="text-sky-400 underline">ipqualityscore.com</a>.</li>
+                        <li>Copy your generated API key from their dashboard.</li>
+                        <li>In FreeCord, open <a href="/settings" class="text-indigo-400 underline font-semibold">Settings &rarr; Security</a>.</li>
+                        <li>Paste your key into <strong class="text-white">ProxyCheck / Anti-Fraud API Key</strong> and click Save.</li>
+                        <li>FreeCord will now query live threat feeds on every single verification attempt!</li>
+                    </ol>
+                </div>
+
+                <div class="p-4 rounded-2xl bg-slate-900/80 border border-white/5 space-y-2.5">
+                    <div class="flex items-center gap-2">
+                        <div class="w-6 h-6 rounded-lg bg-purple-500/20 text-purple-400 flex items-center justify-center font-bold text-xs">2</div>
+                        <h4 class="font-bold text-white">Discord Snowflake Account Age Filter</h4>
+                    </div>
+                    <p class="text-slate-400 text-[11px] leading-relaxed">
+                        Every Discord User ID is a mathematical 64-bit snowflake timestamp. FreeCord decodes the exact millisecond an account was created.
+                    </p>
+                    <ul class="space-y-1.5 text-slate-300 text-[11px]">
+                        <li class="flex items-center gap-1.5">
+                            <i data-lucide="check" class="w-3.5 h-3.5 text-emerald-400"></i>
+                            <span>Set <strong class="text-white">Min Account Age</strong> to 7 or 14 days in Settings.</span>
+                        </li>
+                        <li class="flex items-center gap-1.5">
+                            <i data-lucide="check" class="w-3.5 h-3.5 text-emerald-400"></i>
+                            <span>Freshly generated raid alt accounts get stopped instantly at the door.</span>
+                        </li>
+                        <li class="flex items-center gap-1.5">
+                            <i data-lucide="check" class="w-3.5 h-3.5 text-emerald-400"></i>
+                            <span>Real members with aged accounts verify in 1 second.</span>
+                        </li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+    </div>
+    {% endif %}
+
+    
+    
+    
+    <div class="glass-panel rounded-3xl p-6 border border-white/10 space-y-6">
+        <div class="flex items-center justify-between border-b border-white/10 pb-4">
+            <div class="flex items-center gap-3">
+                <span class="w-8 h-8 rounded-xl bg-indigo-500/20 text-indigo-400 font-bold flex items-center justify-center text-sm border border-indigo-500/30">8</span>
+                <div>
+                    <h3 class="text-base font-bold text-white">How to Import Existing Tokens</h3>
+                    <p class="text-xs text-slate-400">Bring your members over without making them verify again</p>
+                </div>
+            </div>
+            <span class="px-2.5 py-0.5 text-[10px] font-bold rounded-lg bg-indigo-500/20 text-indigo-300 border border-indigo-500/30">Direct Restore</span>
+        </div>
+
+        <div class="space-y-4 text-xs text-slate-300">
+            <p class="leading-relaxed">
+                If you already have member OAuth2 tokens from an old bot, previous backup file, or database export, you can load them directly into FreeCord. You do not need to ask anyone to re-verify.
+            </p>
+
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <div class="p-4 rounded-2xl bg-slate-900/80 border border-white/5 space-y-2.5">
+                    <h4 class="font-bold text-white flex items-center gap-2">
+                        <i data-lucide="file-text" class="w-4 h-4 text-indigo-400"></i>
+                        <span>Accepted Token Formats</span>
+                    </h4>
+                    <p class="text-slate-400 text-[11px]">Paste tokens in any of these styles (one per line):</p>
+                    <div class="p-2.5 rounded-xl bg-slate-950 font-mono text-[10px] text-emerald-400 border border-slate-800 space-y-1">
+                        <div>15338949344:vQ8x9a...:rf7B1z...</div>
+                        <div>15338949344:vQ8x9a...</div>
+                        <div>vQ8x9a9s8d7f6g5h4j3k2...</div>
+                        <div>{"user_id": "153389...", "access_token": "..."}</div>
+                    </div>
+                </div>
+
+                <div class="p-4 rounded-2xl bg-slate-900/80 border border-white/5 space-y-2.5">
+                    <h4 class="font-bold text-white flex items-center gap-2">
+                        <i data-lucide="check-circle" class="w-4 h-4 text-emerald-400"></i>
+                        <span>Step by Step Instructions</span>
+                    </h4>
+                    <ol class="list-decimal list-inside space-y-1.5 text-slate-300 text-[11px]">
+                        <li>Open the <a href="/migrations" class="text-indigo-400 underline font-semibold">Migrations</a> page.</li>
+                        <li>Click the purple <strong>Import Tokens</strong> button at top right.</li>
+                        <li>Pick the bot you want these tokens linked to.</li>
+                        <li>Paste your token list into the box and click <strong>Import Tokens</strong>.</li>
+                        <li>FreeCord encrypts each token and saves it to your verified list.</li>
+                        <li>Click <strong>Start Restore Task</strong> to pull them into your server!</li>
+                    </ol>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="glass-panel rounded-3xl p-6 border border-white/10 space-y-6">
+        <div class="flex items-center justify-between border-b border-white/10 pb-4">
+            <div class="flex items-center gap-3">
+                <span class="w-8 h-8 rounded-xl bg-indigo-500/20 text-indigo-400 font-bold flex items-center justify-center text-sm border border-indigo-500/30">9</span>
+                <div>
+                    <h3 class="text-base font-bold text-white">How to Export Tokens</h3>
+                    <p class="text-xs text-slate-400">Download or copy your verified tokens</p>
+                </div>
+            </div>
+            <span class="px-2.5 py-0.5 text-[10px] font-bold rounded-lg bg-emerald-500/20 text-emerald-300 border border-emerald-500/30">Data Freedom</span>
+        </div>
+
+        <div class="space-y-3 text-xs text-slate-300">
+            <p class="leading-relaxed">
+                You own your data. FreeCord lets you export all your tokens anytime in multiple formats:
+            </p>
+            <ol class="list-decimal list-inside space-y-1.5 text-slate-300 text-[11px]">
+                <li>Head to the <a href="/migrations" class="text-indigo-400 underline font-semibold">Migrations</a> page.</li>
+                <li>Click <strong>Export Tokens</strong> at top right.</li>
+                <li>Choose the format: <strong class="text-white">ID:Access:Refresh</strong>, <strong class="text-white">ID:Access</strong>, raw tokens, or full <strong class="text-white">JSON</strong>.</li>
+                <li>Click <strong>Download File</strong> to save a backup or <strong>Copy</strong> to paste them wherever you need.</li>
+            </ol>
+        </div>
+    </div>
+
+    <div class="glass-panel rounded-3xl p-6 border border-white/10 space-y-6">
+        <div class="flex items-center justify-between border-b border-white/10 pb-4">
+            <div class="flex items-center gap-3">
+                <span class="w-8 h-8 rounded-xl bg-indigo-500/20 text-indigo-400 font-bold flex items-center justify-center text-sm border border-indigo-500/30">10</span>
+                <div>
+                    <h3 class="text-base font-bold text-white">Bot Team & Permission Checkmarks</h3>
+                    <p class="text-xs text-slate-400">Add helpers and choose what they can do</p>
+                </div>
+            </div>
+            <span class="px-2.5 py-0.5 text-[10px] font-bold rounded-lg bg-sky-500/20 text-sky-300 border border-sky-500/30">Team Access</span>
+        </div>
+
+        <div class="space-y-3 text-xs text-slate-300">
+            <p class="leading-relaxed">
+                You can add moderators or helpers to your bot with custom permissions:
+            </p>
+            <ol class="list-decimal list-inside space-y-1.5 text-slate-300 text-[11px]">
+                <li>Go to the <a href="/bots" class="text-indigo-400 underline font-semibold">Bots</a> page.</li>
+                <li>Click the <strong class="text-white">Team</strong> button on any bot card.</li>
+                <li>Enter their username and role title (like Helper, Moderator, or Admin).</li>
+                <li>Checkmark the actions they can perform (Backups, Migrations, Blacklist, Member Info, Security Settings, or Token Export).</li>
+                <li>Checkmark which Discord servers they can manage (All Servers or specific servers).</li>
+                <li>Click <strong class="text-white">Save Team Member</strong>.</li>
+            </ol>
+        </div>
+    </div>
+
+    {% if user.role == 'admin' or user.id == 1 %}
+    <div class="glass-panel rounded-3xl p-6 border border-white/10 space-y-6">
+        <div class="flex items-center justify-between border-b border-white/10 pb-4">
+            <div class="flex items-center gap-3">
+                <span class="w-8 h-8 rounded-xl bg-[#5865F2]/20 text-[#5865F2] font-bold flex items-center justify-center text-sm border border-[#5865F2]/30">11</span>
+                <div>
+                    <h3 class="text-base font-bold text-white">Discord Login for Dashboard Setup</h3>
+                    <p class="text-xs text-slate-400">Configure Continue with Discord for signing into FreeCord</p>
+                </div>
+            </div>
+            <span class="px-2.5 py-0.5 text-[10px] font-bold rounded-lg bg-[#5865F2]/20 text-[#5865F2] border border-[#5865F2]/30">Admin Settings</span>
+        </div>
+
+        <div class="space-y-4 text-xs text-slate-300">
+            <div class="p-4 rounded-2xl bg-slate-900/80 border border-white/5 space-y-2">
+                <div class="flex items-center gap-2 font-bold text-white text-xs">
+                    <i data-lucide="info" class="w-4 h-4 text-indigo-400"></i>
+                    <span>Why is this in Settings instead of Add Bots?</span>
+                </div>
+                <p class="text-[11px] text-slate-300 leading-relaxed">
+                    <strong class="text-white">Verification Bots</strong> join your Discord servers to assign roles, ban raid bots, and take backups.
+                    <br>
+                    <strong class="text-[#5865F2]">Dashboard Discord Login</strong> is a separate login gateway that lets you and your team sign into the FreeCord web panel with your Discord accounts. Setting it up in <a href="/settings" class="text-indigo-400 underline font-semibold">Settings &rarr; Discord Login</a> gives you full control.
+                </p>
+            </div>
+
+            <div class="space-y-2">
+                <div class="flex items-center justify-between text-[11px] text-slate-400">
+                    <span class="font-bold text-slate-200">1. Discord Developer Portal &rarr; OAuth2 &rarr; General</span>
+                    <span class="text-indigo-400">Where to copy ID and add Redirect</span>
+                </div>
+
+                <div class="rounded-2xl bg-[#1e1f22] border border-slate-700/60 overflow-hidden shadow-2xl text-[11px] font-sans">
+                    <div class="bg-[#141517] px-4 py-2 border-b border-slate-800 flex items-center justify-between text-slate-400">
+                        <span class="font-bold text-slate-200">DISCORD DEVELOPER PORTAL &bull; OAuth2</span>
+                        <span class="px-2 py-0.5 rounded bg-indigo-600 text-white text-[10px]">Active</span>
+                    </div>
+                    <div class="p-4 space-y-3 bg-[#1e1f22]">
+                        <div class="p-3 rounded-xl bg-[#2b2d31] border border-slate-700 space-y-1.5">
+                            <div class="flex items-center justify-between">
+                                <span class="text-slate-400 uppercase font-bold text-[10px]">Client ID</span>
+                                <span class="px-2 py-0.5 rounded bg-indigo-500/20 text-indigo-300 text-[10px] font-bold">Copy to FreeCord</span>
+                            </div>
+                            <div class="font-mono text-emerald-400 text-xs bg-black/40 px-2.5 py-1.5 rounded-lg border border-slate-800">
+                                1540801784132403290
+                            </div>
+                        </div>
+
+                        <div class="p-3 rounded-xl bg-[#2b2d31] border border-slate-700 space-y-1.5">
+                            <div class="flex items-center justify-between">
+                                <span class="text-slate-400 uppercase font-bold text-[10px]">Client Secret</span>
+                                <span class="px-2 py-0.5 rounded bg-indigo-500/20 text-indigo-300 text-[10px] font-bold">Click Reset Secret</span>
+                            </div>
+                            <div class="font-mono text-slate-500 text-xs bg-black/40 px-2.5 py-1.5 rounded-lg border border-slate-800">
+                                ••••••••••••••••••••••••••••••••
+                            </div>
+                        </div>
+
+                        <div class="p-3 rounded-xl bg-[#2b2d31] border border-emerald-500/40 space-y-1.5">
+                            <div class="flex items-center justify-between">
+                                <span class="text-slate-200 font-bold text-[10px] flex items-center gap-1.5">
+                                    <i data-lucide="link-2" class="w-3.5 h-3.5 text-emerald-400"></i>
+                                    <span>REDIRECTS &rarr; Add Redirect</span>
+                                </span>
+                                <span class="px-2 py-0.5 rounded bg-emerald-500/20 text-emerald-300 text-[10px] font-bold">Paste FreeCord URL here</span>
+                            </div>
+                            <div class="font-mono text-white text-xs bg-black/40 px-2.5 py-1.5 rounded-lg border border-emerald-500/30">
+                                https://your-freecord-url.com/api/oauth/callback
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="p-4 rounded-2xl bg-slate-900/80 border border-white/5 space-y-3">
+                <h4 class="font-bold text-white text-xs flex items-center gap-2">
+                    <i data-lucide="check-circle" class="w-4 h-4 text-emerald-400"></i>
+                    <span>Exact Setup Steps</span>
+                </h4>
+                <ol class="list-decimal list-inside space-y-2 text-slate-300 text-[11px] leading-relaxed">
+                    <li>Open <a href="/settings" class="text-indigo-400 underline font-semibold">Settings</a> and scroll to the <strong class="text-white">Discord Login for Dashboard</strong> card.</li>
+                    <li>Copy your instance <strong class="text-white">Redirect URL</strong> directly from the copy box in Settings.</li>
+                    <li>In the <a href="https://discord.com/developers/applications" target="_blank" class="text-indigo-400 underline">Discord Developer Portal</a>, click your application &rarr; <strong class="text-white">OAuth2</strong> &rarr; <strong class="text-white">General</strong>.</li>
+                    <li>Under <strong class="text-white">Redirects</strong>, click <strong class="text-white">Add Redirect</strong>, paste your FreeCord URL, and click <strong class="text-emerald-400">Save Changes</strong>.</li>
+                    <li>Copy your <strong class="text-white">Client ID</strong> and <strong class="text-white">Client Secret</strong>, paste them into FreeCord Settings, toggle <strong class="text-white">Enable</strong> on, and click <strong class="text-white">Save Discord Login Settings</strong>.</li>
+                    <li>Go to <a href="/login" class="text-indigo-400 underline">/login</a>, click <strong class="text-[#5865F2]">Continue with Discord</strong> and you will be instantly logged in.</li>
+                </ol>
+            </div>
+        </div>
+    </div>
+    {% endif %}
+
+    <div class="glass-panel rounded-3xl p-6 border border-white/10 space-y-6">
+        <div class="border-b border-white/10 pb-4">
+            <span class="px-2.5 py-0.5 rounded-full text-[10px] uppercase font-bold bg-emerald-500/20 text-emerald-300 border border-emerald-500/30">Public Access</span>
+            <h3 class="text-lg font-bold text-white mt-1">Hosting & Tunnel Guides</h3>
+            <p class="text-xs text-slate-300 mt-1 leading-relaxed">
+                Discord OAuth2 redirects member browsers to your FreeCord instance. If running from home, pick one of these 100% free options so members can verify smoothly:
+            </p>
+        </div>
+
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-4 text-xs">
+            
+            
+            <div class="p-4 rounded-2xl bg-slate-900/80 border border-white/5 space-y-2.5">
+                <div class="flex items-center gap-2">
+                    <span class="w-7 h-7 rounded-xl bg-indigo-500/20 text-indigo-400 flex items-center justify-center font-bold">1</span>
+                    <h4 class="font-bold text-white text-sm">Free Ngrok Domain</h4>
+                </div>
+                <p class="text-slate-300 text-[11px] leading-relaxed">
+                    Get 1 permanent free domain from ngrok so your URL never changes.
+                </p>
+                <ol class="list-decimal list-inside space-y-1 text-slate-400 text-[11px]">
+                    <li>Sign up free at <a href="https://ngrok.com" target="_blank" class="text-indigo-400 underline">ngrok.com</a></li>
+                    <li>Claim your free static domain</li>
+                    <li>Run in terminal:</li>
+                </ol>
+                <div class="p-2 rounded-xl bg-slate-950 font-mono text-[10px] text-emerald-400 border border-slate-800 break-all select-all">
+                    ngrok http --domain=YOUR_DOMAIN.ngrok-free.app 8000
+                </div>
+            </div>
+
+            
+            <div class="p-4 rounded-2xl bg-slate-900/80 border border-white/5 space-y-2.5">
+                <div class="flex items-center gap-2">
+                    <span class="w-7 h-7 rounded-xl bg-indigo-500/20 text-indigo-400 flex items-center justify-center font-bold">2</span>
+                    <h4 class="font-bold text-white text-sm">Cloudflare Tunnel</h4>
+                </div>
+                <p class="text-slate-300 text-[11px] leading-relaxed">
+                    Zero port forwarding with automatic free SSL security.
+                </p>
+                <ol class="list-decimal list-inside space-y-1 text-slate-400 text-[11px]">
+                    <li>Download cloudflared</li>
+                    <li>Instant quick tunnel:</li>
+                </ol>
+                <div class="p-2 rounded-xl bg-slate-950 font-mono text-[10px] text-emerald-400 border border-slate-800 break-all select-all">
+                    cloudflared tunnel --url http://localhost:8000
+                </div>
+            </div>
+
+            
+            <div class="p-4 rounded-2xl bg-slate-900/80 border border-white/5 space-y-2.5">
+                <div class="flex items-center gap-2">
+                    <span class="w-7 h-7 rounded-xl bg-indigo-500/20 text-indigo-400 flex items-center justify-center font-bold">3</span>
+                    <h4 class="font-bold text-white text-sm">Free Linux VPS</h4>
+                </div>
+                <p class="text-slate-300 text-[11px] leading-relaxed">
+                    Host 24/7 on Oracle Always Free, DigitalOcean, or Hetzner.
+                </p>
+                <ol class="list-decimal list-inside space-y-1 text-slate-400 text-[11px]">
+                    <li>Connect to your VPS via SSH</li>
+                    <li>Clone and start:</li>
+                </ol>
+                <div class="p-2 rounded-xl bg-slate-950 font-mono text-[10px] text-emerald-400 border border-slate-800 break-all select-all">
+                    ./run.sh
+                </div>
+            </div>
+
+        </div>
+    </div>
+
+    
+    <div class="text-center pt-4">
+        <a href="/bots/new" class="inline-flex items-center gap-2 px-7 py-3 rounded-2xl bg-indigo-600 hover:bg-indigo-500 text-white text-sm font-bold shadow-xl shadow-indigo-600/30 transition-all transform hover:-translate-y-0.5">
+            <span>Connect Discord Bot</span>
+            <i data-lucide="arrow-right" class="w-4 h-4"></i>
+        </a>
+    </div>
+
+</div>
+{% endblock %}
+
+{% block extra_scripts %}
+<script>
+    function generateBotInvite() {
+        const clientId = document.getElementById('invite-client-id').value.trim();
+        if (!clientId) {
+            showToast('Please enter a valid Client ID', 'error');
+            return;
+        }
+        const inviteUrl = `https://discord.com/oauth2/authorize?client_id=${clientId}&permissions=8&scope=bot%20applications.commands`;
+        window.open(inviteUrl, '_blank');
+    }
+</script>
+{% endblock %}

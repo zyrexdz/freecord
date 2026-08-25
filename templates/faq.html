@@ -1,0 +1,241 @@
+{% extends "base.html" %}
+
+{% block title %}FAQ - FreeCord{% endblock %}
+{% block page_title %}FAQ{% endblock %}
+
+{% block content %}
+<div class="max-w-4xl mx-auto space-y-6">
+
+    <div class="glass-panel rounded-3xl p-6 sm:p-7 border border-white/10 relative overflow-hidden bg-gradient-to-r from-indigo-500/10 via-slate-900/40 to-emerald-500/10">
+        <div class="flex items-start gap-4">
+            <div class="w-11 h-11 rounded-2xl bg-indigo-500/20 text-indigo-400 flex items-center justify-center shrink-0 border border-indigo-500/30">
+                <i data-lucide="help-circle" class="w-5 h-5"></i>
+            </div>
+            <div>
+                <span class="px-2 py-0.5 rounded-full text-[10px] uppercase font-bold bg-indigo-500/20 text-indigo-300 border border-indigo-500/30">Help & FAQ</span>
+                <h2 class="text-lg font-bold text-white mt-1">Frequently Asked Questions</h2>
+                <p class="text-xs text-slate-300 mt-1 max-w-xl">
+                    Simple, straightforward answers to everything about verification, bots, anti-vpn, and server restores.
+                </p>
+            </div>
+        </div>
+    </div>
+
+    <div class="space-y-3.5">
+
+        <div class="glass-panel rounded-2xl p-5 border border-emerald-500/30 space-y-2">
+            <h3 class="text-sm font-bold text-white flex items-center gap-2">
+                <span class="w-6 h-6 rounded-xl bg-emerald-500/20 text-emerald-400 flex items-center justify-center text-xs font-bold">1</span>
+                <span>Do I have Anti-VPN enabled by default?</span>
+            </h3>
+            <div class="text-xs text-slate-300 pl-8 leading-relaxed space-y-1.5">
+                <p><strong class="text-emerald-400 font-bold">Yes!</strong> FreeCord has anti-vpn protection built right in, so it works immediately with no setup needed.</p>
+                <p class="text-slate-400">It automatically catches and blocks VPN servers and hosting datacenters like AWS, OVH, DigitalOcean, and Hetzner while letting real members verify without issues. If you want even extra protection, you can also add a free ProxyCheck or IPQualityScore key in Settings.</p>
+            </div>
+        </div>
+
+        <div class="glass-panel rounded-2xl p-5 border border-white/5 space-y-2">
+            <h3 class="text-sm font-bold text-white flex items-center gap-2">
+                <span class="w-6 h-6 rounded-xl bg-indigo-500/20 text-indigo-400 flex items-center justify-center text-xs font-bold">2</span>
+                <span>What is the difference between a Bot Token and a Client Secret?</span>
+            </h3>
+            <div class="text-xs text-slate-300 pl-8 leading-relaxed space-y-1.5">
+                <p><strong class="text-indigo-300 font-semibold">Bot Token:</strong> Think of this as your bot's password. It allows FreeCord to log into Discord, create channels, assign roles, and take server backups.</p>
+                <p><strong class="text-indigo-300 font-semibold">Client Secret:</strong> This is the OAuth2 security key. When members verify, Discord gives you a temporary authorization token that expires in 7 days. The Client Secret is what lets FreeCord refresh that token anytime so you can restore members months later.</p>
+            </div>
+        </div>
+
+        <div class="glass-panel rounded-2xl p-5 border border-white/5 space-y-2">
+            <h3 class="text-sm font-bold text-white flex items-center gap-2">
+                <span class="w-6 h-6 rounded-xl bg-indigo-500/20 text-indigo-400 flex items-center justify-center text-xs font-bold">3</span>
+                <span>Why do I need a Redirect URL?</span>
+            </h3>
+            <div class="text-xs text-slate-300 pl-8 leading-relaxed space-y-1.5">
+                <p>When someone clicks your server's verification link, Discord opens an authorization page ("FreeCord wants to access your account").</p>
+                <p class="text-slate-400">Once they click "Authorize", Discord needs to know where to send them back. The Redirect URL tells Discord: "Send the verified user back to my FreeCord instance so they get their Verified role!"</p>
+            </div>
+        </div>
+
+        <div class="glass-panel rounded-2xl p-5 border border-white/5 space-y-2">
+            <h3 class="text-sm font-bold text-white flex items-center gap-2">
+                <span class="w-6 h-6 rounded-xl bg-indigo-500/20 text-indigo-400 flex items-center justify-center text-xs font-bold">4</span>
+                <span>Is FreeCord really 100% free with unlimited members?</span>
+            </h3>
+            <div class="text-xs text-slate-300 pl-8 leading-relaxed space-y-1.5">
+                <p><strong class="text-white font-semibold">Yes, completely free forever.</strong> Other services like RestoreCord block you with a paywall after just 25 members.</p>
+                <p class="text-slate-400">FreeCord is self-hosted on your own machine or VPS with zero limits, zero paywalls, and zero restrictions. You can verify and restore tens of thousands of members without paying a dime.</p>
+            </div>
+        </div>
+
+        <div class="glass-panel rounded-2xl p-5 border border-white/5 space-y-2">
+            <h3 class="text-sm font-bold text-white flex items-center gap-2">
+                <span class="w-6 h-6 rounded-xl bg-indigo-500/20 text-indigo-400 flex items-center justify-center text-xs font-bold">5</span>
+                <span>Can I restore my server if the original server gets deleted or banned?</span>
+            </h3>
+            <div class="text-xs text-slate-300 pl-8 leading-relaxed space-y-1.5">
+                <p><strong class="text-white font-semibold">Yes, that is exactly why FreeCord exists.</strong></p>
+                <p class="text-slate-400">1. Take a server backup from the <strong>Backups</strong> page (saves all roles, categories, channels, permissions, and emojis into a JSON file).<br>
+                2. If your server is lost, create a fresh Discord server, invite your bot, and click <strong>Restore Backup</strong>.<br>
+                3. Then go to <strong>Migrations</strong>, select the new server, and click <strong>Start Restore</strong> to pull all your verified members back into the new server automatically!</p>
+            </div>
+        </div>
+
+        <div class="glass-panel rounded-2xl p-5 border border-white/5 space-y-2">
+            <h3 class="text-sm font-bold text-white flex items-center gap-2">
+                <span class="w-6 h-6 rounded-xl bg-indigo-500/20 text-indigo-400 flex items-center justify-center text-xs font-bold">6</span>
+                <span>How do I make my verification link work on mobile and for other people?</span>
+            </h3>
+            <div class="text-xs text-slate-300 pl-8 leading-relaxed space-y-1.5">
+                <p>If you run FreeCord on your local PC, <code class="text-indigo-300">http://localhost:8000</code> only works on your own computer.</p>
+                <p class="text-slate-400">To let members verify from anywhere in the world, use a free tunnel (like <strong>Ngrok</strong> or <strong>Cloudflare Tunnel</strong>) or host FreeCord on a cheap VPS (like Oracle Always Free, DigitalOcean, or Hetzner). Check the <a href="/setup-guide" class="text-indigo-400 underline font-semibold">Setup Guide</a> for exact 1-minute commands.</p>
+            </div>
+        </div>
+
+        <div class="glass-panel rounded-2xl p-5 border border-white/5 space-y-2">
+            <h3 class="text-sm font-bold text-white flex items-center gap-2">
+                <span class="w-6 h-6 rounded-xl bg-indigo-500/20 text-indigo-400 flex items-center justify-center text-xs font-bold">7</span>
+                <span>What details does the "Inspect Full Information" button show?</span>
+            </h3>
+            <div class="text-xs text-slate-300 pl-8 leading-relaxed space-y-1.5">
+                <p>Clicking the blue <strong>Inspect</strong> button on any member reveals everything grababble about that user:</p>
+                <ul class="list-disc list-inside space-y-1 text-slate-400">
+                    <li><strong class="text-white">Discord Identity:</strong> User ID, username, avatar URL, email, and Discord account age (days old).</li>
+                    <li><strong class="text-white">Network & Location:</strong> IP address, country, region, city, zip code, ISP provider, and ASN.</li>
+                    <li><strong class="text-white">Device Details:</strong> Operating system, browser family, device model, and screen resolution.</li>
+                    <li><strong class="text-white">Behavior History:</strong> Number of times they left servers and verification timestamp.</li>
+                </ul>
+            </div>
+        </div>
+
+        <div class="glass-panel rounded-2xl p-5 border border-white/5 space-y-2">
+            <h3 class="text-sm font-bold text-white flex items-center gap-2">
+                <span class="w-6 h-6 rounded-xl bg-indigo-500/20 text-indigo-400 flex items-center justify-center text-xs font-bold">8</span>
+                <span>Why does Discord have rate limits when restoring members?</span>
+            </h3>
+            <div class="text-xs text-slate-300 pl-8 leading-relaxed space-y-1.5">
+                <p>Discord allows bots to add around 1 member per second to avoid crashing servers. If you blast 500 requests at once, Discord will pause the bot with a 429 Too Many Requests response.</p>
+                <p class="text-slate-400">FreeCord uses smart pacing with automatic retry backoff and proxy rotation so your migrations complete safely without getting blocked.</p>
+            </div>
+        </div>
+
+        <div class="glass-panel rounded-2xl p-5 border border-white/5 space-y-2">
+            <h3 class="text-sm font-bold text-white flex items-center gap-2">
+                <span class="w-6 h-6 rounded-xl bg-indigo-500/20 text-indigo-400 flex items-center justify-center text-xs font-bold">9</span>
+                <span>What happens if someone uses a VPN to verify?</span>
+            </h3>
+            <div class="text-xs text-slate-300 pl-8 leading-relaxed space-y-1.5">
+                <p>If Anti-VPN is enabled, the verification page immediately rejects the connection: <em>"VPN or proxy detected. Please disable your VPN to verify."</em></p>
+                <p class="text-slate-400">An alert is also recorded in your audit logs showing the user's ID, flagged IP, and detected VPN network.</p>
+            </div>
+        </div>
+
+        <div class="glass-panel rounded-2xl p-5 border border-white/5 space-y-2">
+            <h3 class="text-sm font-bold text-white flex items-center gap-2">
+                <span class="w-6 h-6 rounded-xl bg-indigo-500/20 text-indigo-400 flex items-center justify-center text-xs font-bold">10</span>
+                <span>How are bot tokens and member tokens secured?</span>
+            </h3>
+            <div class="text-xs text-slate-300 pl-8 leading-relaxed space-y-1.5">
+                <p>All sensitive credentials (bot tokens, client secrets, and member access/refresh tokens) are encrypted with <strong>Fernet AES-128 CBC</strong> encryption before being saved into your local database.</p>
+                <p class="text-slate-400">Even if someone gets a copy of your database file, they cannot read any tokens without the unique encryption key in your <code class="text-emerald-400 font-mono">.env</code> file.</p>
+            </div>
+        </div>
+
+        <div class="glass-panel rounded-2xl p-5 border border-white/5 space-y-2">
+            <h3 class="text-sm font-bold text-white flex items-center gap-2">
+                <span class="w-6 h-6 rounded-xl bg-indigo-500/20 text-indigo-400 flex items-center justify-center text-xs font-bold">11</span>
+                <span>What does Import Tokens mean and when should I use it?</span>
+            </h3>
+            <div class="text-xs text-slate-300 pl-8 leading-relaxed space-y-1.5">
+                <p><strong class="text-white font-semibold">Import Tokens lets you load members you already have into FreeCord without making them re-verify.</strong></p>
+                <p class="text-slate-400">If you have tokens from previous backups, old bots, or database exports, you can paste them all at once in the <strong>Migrations</strong> tab by clicking <strong>Import Tokens</strong>.</p>
+                <p class="text-slate-400">FreeCord checks each token, encrypts it on your machine, and links it to your bot. After importing, you can immediately pull those members into any server you own.</p>
+            </div>
+        </div>
+
+        <div class="glass-panel rounded-2xl p-5 border border-white/5 space-y-2">
+            <h3 class="text-sm font-bold text-white flex items-center gap-2">
+                <span class="w-6 h-6 rounded-xl bg-indigo-500/20 text-indigo-400 flex items-center justify-center text-xs font-bold">12</span>
+                <span>How do I export my verified tokens?</span>
+            </h3>
+            <div class="text-xs text-slate-300 pl-8 leading-relaxed space-y-1.5">
+                <p><strong class="text-white font-semibold">You can export all verified tokens anytime in one click.</strong></p>
+                <p class="text-slate-400">Go to <strong>Migrations</strong> &rarr; click <strong>Export Tokens</strong>. You can choose whether to download as a text file or JSON, filter by bot or active members, and copy the decrypted tokens directly.</p>
+            </div>
+        </div>
+
+        <div class="glass-panel rounded-2xl p-5 border border-white/5 space-y-2">
+            <h3 class="text-sm font-bold text-white flex items-center gap-2">
+                <span class="w-6 h-6 rounded-xl bg-indigo-500/20 text-indigo-400 flex items-center justify-center text-xs font-bold">13</span>
+                <span>Can I add helpers or moderators to manage my bot?</span>
+            </h3>
+            <div class="text-xs text-slate-300 pl-8 leading-relaxed space-y-1.5">
+                <p><strong class="text-white font-semibold">Yes, you can add team members with custom permissions.</strong></p>
+                <p class="text-slate-400">On the <strong>Bots</strong> page, click the <strong>Team</strong> button on any bot. You can add a collaborator and checkmark exactly what they are allowed to do (like taking backups, running migrations, or viewing member IPs) and pick which servers they can manage.</p>
+            </div>
+        </div>
+
+        {% if user and (user.role == 'admin' or user.id == 1) %}
+        <div class="glass-panel rounded-2xl p-5 border border-[#5865F2]/30 space-y-2">
+            <h3 class="text-sm font-bold text-white flex items-center gap-2">
+                <span class="w-6 h-6 rounded-xl bg-[#5865F2]/20 text-[#5865F2] flex items-center justify-center text-xs font-bold">14</span>
+                <span>How does "Continue with Discord" dashboard login work?</span>
+            </h3>
+            <div class="text-xs text-slate-300 pl-8 leading-relaxed space-y-1.5">
+                <p><strong class="text-[#5865F2] font-semibold">It lets you and your team sign into FreeCord using your Discord accounts in one click.</strong></p>
+                <p class="text-slate-400">When you click "Continue with Discord", Discord verifies your identity securely and returns your profile to FreeCord. If it is your first time logging in as the server owner, you receive full admin access automatically. It also shows your real Discord avatar and username in the dashboard footer!</p>
+            </div>
+        </div>
+
+        <div class="glass-panel rounded-2xl p-5 border border-white/5 space-y-2">
+            <h3 class="text-sm font-bold text-white flex items-center gap-2">
+                <span class="w-6 h-6 rounded-xl bg-indigo-500/20 text-indigo-400 flex items-center justify-center text-xs font-bold">15</span>
+                <span>Why is Discord Login configured separately from verification bots in Settings?</span>
+            </h3>
+            <div class="text-xs text-slate-300 pl-8 leading-relaxed space-y-1.5">
+                <p><strong class="text-white font-semibold">Because they serve completely different purposes.</strong></p>
+                <p class="text-slate-400">
+                    <strong>Verification Bots:</strong> Are bots that you invite into Discord servers to give verified roles, ban raid bots, and snapshot backups.<br>
+                    <strong>Discord Dashboard Login:</strong> Is an authentication gateway for you and your staff to log into the web dashboard. By keeping it in <strong>Settings &rarr; Discord Login</strong>, you can use any dedicated Discord app or master credentials without messing with your server bots.
+                </p>
+            </div>
+        </div>
+
+        <div class="glass-panel rounded-2xl p-5 border border-white/5 space-y-2">
+            <h3 class="text-sm font-bold text-white flex items-center gap-2">
+                <span class="w-6 h-6 rounded-xl bg-indigo-500/20 text-indigo-400 flex items-center justify-center text-xs font-bold">16</span>
+                <span>What should I do if Discord says "Invalid OAuth2 redirect_uri"?</span>
+            </h3>
+            <div class="text-xs text-slate-300 pl-8 leading-relaxed space-y-1.5">
+                <p><strong class="text-rose-400 font-semibold">Discord blocks OAuth2 logins if your URL is not registered in the Developer Portal.</strong></p>
+                <p class="text-slate-400">
+                    1. Open the <strong>Settings</strong> page in FreeCord and copy the <strong>Redirect URL</strong> (e.g. <code class="text-emerald-400 font-mono">https://your-url.com/api/oauth/callback</code>).<br>
+                    2. Go to the <a href="https://discord.com/developers/applications" target="_blank" class="text-indigo-400 underline">Discord Developer Portal</a> &rarr; click your Application &rarr; <strong>OAuth2</strong> &rarr; <strong>General</strong>.<br>
+                    3. Under <strong>Redirects</strong>, click <strong>Add Redirect</strong>, paste the link, and click <strong>Save Changes</strong>.<br>
+                    4. Click "Continue with Discord" again and it will work immediately!
+                </p>
+            </div>
+        </div>
+
+        <div class="glass-panel rounded-2xl p-5 border border-white/5 space-y-2">
+            <h3 class="text-sm font-bold text-white flex items-center gap-2">
+                <span class="w-6 h-6 rounded-xl bg-indigo-500/20 text-indigo-400 flex items-center justify-center text-xs font-bold">17</span>
+                <span>Can my staff and moderators log in with their Discord accounts too?</span>
+            </h3>
+            <div class="text-xs text-slate-300 pl-8 leading-relaxed space-y-1.5">
+                <p><strong class="text-white font-semibold">Yes!</strong></p>
+                <p class="text-slate-400">Once you enable Discord Login in Settings, any staff member or bot collaborator can click "Continue with Discord" on the login screen to sign in with their Discord account.</p>
+            </div>
+        </div>
+        {% endif %}
+
+    </div>
+
+    <div class="text-center pt-4">
+        <a href="/setup-guide" class="inline-flex items-center gap-2 px-6 py-3 rounded-2xl bg-indigo-600 hover:bg-indigo-500 text-white text-xs font-bold shadow-lg shadow-indigo-600/25 transition-all">
+            <i data-lucide="book-open" class="w-4 h-4"></i>
+            <span>Go to Setup Guide</span>
+        </a>
+    </div>
+
+</div>
+{% endblock %}

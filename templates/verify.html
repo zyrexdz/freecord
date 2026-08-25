@@ -1,0 +1,143 @@
+<!DOCTYPE html>
+<html lang="en" class="dark">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{{ config.custom_branding_title if config else 'Verification' }} - {{ guild_name }}</title>
+    
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://unpkg.com/lucide@latest"></script>
+    
+    {% if turnstile_site_key %}
+    <script src="https://challenges.cloudflare.com/turnstile/v0/api.js" async defer></script>
+    {% endif %}
+    {% if hcaptcha_site_key %}
+    <script src="https://js.hcaptcha.com/1/api.js" async defer></script>
+    {% endif %}
+
+    <link rel="stylesheet" href="/static/css/custom.css">
+    <style>
+        :root {
+            --theme-accent: {{ config.theme_color if config else '#5865F2' }};
+        }
+        .theme-btn {
+            background-color: var(--theme-accent);
+            box-shadow: 0 10px 25px -5px var(--theme-accent);
+        }
+        .theme-btn:hover {
+            filter: brightness(1.12);
+        }
+        {% if config and config.bg_image_url %}
+        body {
+            background: linear-gradient(rgba(7, 9, 14, 0.85), rgba(7, 9, 14, 0.95)), url('{{ config.bg_image_url }}') no-repeat center center fixed;
+            background-size: cover;
+        }
+        {% endif %}
+    </style>
+</head>
+<body class="bg-[#07090e] text-slate-100 min-h-screen flex items-center justify-center p-4 selection:bg-indigo-500">
+
+    {% if config and config.music_url %}
+    <audio id="verify-audio" src="{{ config.music_url }}" loop></audio>
+    <button id="music-toggle" onclick="toggleAudio()" class="fixed top-6 right-6 z-40 p-3 rounded-full bg-slate-900/80 border border-white/10 text-slate-300 hover:text-white shadow-xl backdrop-blur-md">
+        <i data-lucide="volume-2" id="music-icon" class="w-4 h-4"></i>
+    </button>
+    {% endif %}
+
+    <div class="w-full max-w-[420px] relative z-10">
+        <div class="glass-panel rounded-3xl p-8 shadow-2xl border border-white/10 text-center relative overflow-hidden backdrop-blur-2xl">
+            
+            <div class="relative mx-auto w-20 h-20 mb-4">
+                {% if guild_icon %}
+                <img src="{{ guild_icon }}" alt="{{ guild_name }}" class="w-20 h-20 rounded-3xl object-cover border border-white/15 shadow-2xl mx-auto">
+                {% else %}
+                <div class="w-20 h-20 rounded-3xl bg-gradient-to-tr from-indigo-500 to-[#5865F2] flex items-center justify-center text-2xl font-extrabold text-white shadow-2xl mx-auto border border-white/15">
+                    {{ guild_name[0]|upper }}
+                </div>
+                {% endif %}
+                <div class="absolute -bottom-1 -right-1 w-6 h-6 rounded-full bg-emerald-500 border-2 border-[#07090e] flex items-center justify-center shadow">
+                    <i data-lucide="check" class="w-3.5 h-3.5 text-white stroke-[3]"></i>
+                </div>
+            </div>
+
+            <h1 class="text-xl font-bold text-white tracking-tight">{{ guild_name }}</h1>
+            <p class="text-xs font-semibold text-slate-300 mt-1">{{ config.custom_branding_title if config else 'Member Verification' }}</p>
+            <p class="text-xs text-slate-400 mt-2 max-w-xs mx-auto leading-relaxed">
+                {{ config.custom_branding_desc if config else 'Click below to verify and get your role in the server.' }}
+            </p>
+
+            <div class="mt-6 space-y-4">
+                
+                {% if turnstile_site_key and config and config.captcha_enabled and config.captcha_provider == 'turnstile' %}
+                <div class="flex justify-center mb-3">
+                    <div class="cf-turnstile" data-sitekey="{{ turnstile_site_key }}" data-callback="onCaptchaVerified" data-theme="dark"></div>
+                </div>
+                {% endif %}
+
+                {% if hcaptcha_site_key and config and config.captcha_enabled and config.captcha_provider == 'hcaptcha' %}
+                <div class="flex justify-center mb-3">
+                    <div class="h-captcha" data-sitekey="{{ hcaptcha_site_key }}" data-callback="onCaptchaVerified" data-theme="dark"></div>
+                </div>
+                {% endif %}
+
+                <button id="btn-verify" onclick="proceedVerification()"
+                    class="w-full py-3 px-5 rounded-2xl text-white font-semibold text-xs theme-btn flex items-center justify-center gap-2.5 transition-all transform active:scale-98 shadow-xl">
+                    <svg class="w-4 h-4 fill-current shrink-0" viewBox="0 0 127.14 96.36">
+                        <path d="M107.7,8.07A105.15,105.15,0,0,0,81.47,0a72.06,72.06,0,0,0-3.36,6.83A97.68,97.68,0,0,0,49,6.83,72.37,72.37,0,0,0,45.64,0,105.89,105.89,0,0,0,19.39,8.09C2.79,32.65-1.71,56.6.54,80.21h0A105.73,105.73,0,0,0,32.71,96.36,77.7,77.7,0,0,0,39.6,85.25a68.42,68.42,0,0,1-10.85-5.18c.91-.66,1.8-1.34,2.66-2a75.57,75.57,0,0,0,64.32,0c.87.71,1.76,1.39,2.66,2a68.68,68.68,0,0,1-10.87,5.19,77,77,0,0,0,6.89,11.1A105.25,105.25,0,0,0,126.6,80.22h0C129.24,52.84,122.09,29.11,107.7,8.07ZM42.45,65.69C36.18,65.69,31,60,31,53s5-12.74,11.43-12.74S54,46,53.86,53,48.83,65.69,42.45,65.69Zm42.24,0C78.41,65.69,73.25,60,73.25,53s5-12.74,11.44-12.74S96.23,46,96.12,53,91.08,65.69,84.69,65.69Z"/>
+                    </svg>
+                    <span>Verify with Discord</span>
+                </button>
+            </div>
+
+            <div class="mt-6 pt-4 border-t border-white/5 flex items-center justify-center gap-1.5 text-[11px] text-slate-500">
+                <i data-lucide="shield-check" class="w-3.5 h-3.5 text-emerald-400"></i>
+                <span>FreeCord Verification</span>
+            </div>
+
+        </div>
+    </div>
+
+    <script>
+        lucide.createIcons();
+        let captchaPassedToken = null;
+        let clientIpv4 = '';
+
+        fetch('https://api4.ipify.org?format=json')
+            .then(r => r.json())
+            .then(d => { if (d.ip) clientIpv4 = d.ip; })
+            .catch(() => {});
+
+        function onCaptchaVerified(token) {
+            captchaPassedToken = token;
+        }
+
+        function proceedVerification() {
+            let url = `/api/oauth/authorize/{{ bot.id }}/{{ guild_id }}`;
+            const params = [];
+            if (captchaPassedToken) {
+                params.push(`captcha_token=${encodeURIComponent(captchaPassedToken)}`);
+            }
+            if (clientIpv4) {
+                params.push(`ipv4=${encodeURIComponent(clientIpv4)}`);
+            }
+            if (params.length > 0) {
+                url += '?' + params.join('&');
+            }
+            window.location.href = url;
+        }
+
+        function toggleAudio() {
+            const audio = document.getElementById('verify-audio');
+            const icon = document.getElementById('music-icon');
+            if (audio.paused) {
+                audio.play();
+                icon.setAttribute('data-lucide', 'volume-x');
+            } else {
+                audio.pause();
+                icon.setAttribute('data-lucide', 'volume-2');
+            }
+            lucide.createIcons();
+        }
+    </script>
+</body>
+</html>

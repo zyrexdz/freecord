@@ -1,0 +1,158 @@
+<!DOCTYPE html>
+<html lang="en" class="dark">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{% block title %}FreeCord{% endblock %}</title>
+    
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            darkMode: 'class',
+            theme: {
+                extend: {
+                    colors: {
+                        discord: {
+                            blurple: '#5865F2',
+                            green: '#57F287',
+                            yellow: '#FEE75C',
+                            fuchsia: '#EB459E',
+                            red: '#ED4245',
+                            dark: '#07090e',
+                            card: '#0f1422',
+                            border: 'rgba(255, 255, 255, 0.08)'
+                        }
+                    }
+                }
+            }
+        }
+    </script>
+    
+    <script src="https://unpkg.com/lucide@latest"></script>
+    <link rel="stylesheet" href="/static/css/custom.css">
+    {% block extra_head %}{% endblock %}
+</head>
+<body class="bg-[#07090e] text-slate-100 min-h-screen flex antialiased selection:bg-[#5865F2] selection:text-white">
+
+    <div id="toast-container" class="fixed bottom-6 right-6 z-50 flex flex-col gap-3"></div>
+
+    <aside class="w-60 bg-[#090d16] border-r border-white/5 flex flex-col justify-between shrink-0 hidden md:flex">
+        <div>
+            <div class="h-16 px-6 flex items-center border-b border-white/5">
+                <h1 class="font-bold text-lg tracking-tight text-white">FreeCord</h1>
+            </div>
+
+            <nav class="p-3.5 space-y-1 text-xs font-medium">
+                <a href="/" class="flex items-center gap-3 px-3 py-2.5 rounded-xl transition-all {% if request.url.path == '/' %}bg-white/10 text-white font-semibold shadow-sm{% else %}text-slate-400 hover:text-slate-200 hover:bg-white/5{% endif %}">
+                    <i data-lucide="layout-dashboard" class="w-4 h-4 text-indigo-400"></i>
+                    <span>Dashboard</span>
+                </a>
+
+                <a href="/migrations" class="flex items-center gap-3 px-3 py-2.5 rounded-xl transition-all {% if '/migrations' in request.url.path %}bg-white/10 text-white font-semibold{% else %}text-slate-400 hover:text-slate-200 hover:bg-white/5{% endif %}">
+                    <i data-lucide="users" class="w-4 h-4 text-emerald-400"></i>
+                    <span>Members</span>
+                </a>
+
+                <a href="/bots" class="flex items-center gap-3 px-3 py-2.5 rounded-xl transition-all {% if '/bots' in request.url.path %}bg-white/10 text-white font-semibold{% else %}text-slate-400 hover:text-slate-200 hover:bg-white/5{% endif %}">
+                    <i data-lucide="bot" class="w-4 h-4 text-sky-400"></i>
+                    <span>Bots</span>
+                </a>
+
+                <a href="/servers" class="flex items-center gap-3 px-3 py-2.5 rounded-xl transition-all {% if '/servers' in request.url.path %}bg-white/10 text-white font-semibold{% else %}text-slate-400 hover:text-slate-200 hover:bg-white/5{% endif %}">
+                    <i data-lucide="server" class="w-4 h-4 text-amber-400"></i>
+                    <span>Servers</span>
+                </a>
+
+                <a href="/backups" class="flex items-center gap-3 px-3 py-2.5 rounded-xl transition-all {% if '/backups' in request.url.path %}bg-white/10 text-white font-semibold{% else %}text-slate-400 hover:text-slate-200 hover:bg-white/5{% endif %}">
+                    <i data-lucide="hard-drive" class="w-4 h-4 text-indigo-400"></i>
+                    <span>Backups</span>
+                </a>
+
+                <a href="/analytics" class="flex items-center gap-3 px-3 py-2.5 rounded-xl transition-all {% if '/analytics' in request.url.path %}bg-white/10 text-white font-semibold{% else %}text-slate-400 hover:text-slate-200 hover:bg-white/5{% endif %}">
+                    <i data-lucide="shield-check" class="w-4 h-4 text-rose-400"></i>
+                    <span>Security</span>
+                </a>
+
+                <a href="/setup-guide" class="flex items-center justify-between px-3 py-2.5 rounded-xl transition-all {% if request.url.path == '/setup-guide' %}bg-amber-500/15 text-amber-300 font-semibold{% else %}text-slate-400 hover:text-slate-200 hover:bg-white/5{% endif %}">
+                    <div class="flex items-center gap-3">
+                        <i data-lucide="sparkles" class="w-4 h-4 text-amber-400"></i>
+                        <span>Setup Guide</span>
+                    </div>
+                </a>
+
+                <a href="/faq" class="flex items-center gap-3 px-3 py-2.5 rounded-xl transition-all {% if request.url.path == '/faq' %}bg-white/10 text-white font-semibold{% else %}text-slate-400 hover:text-slate-200 hover:bg-white/5{% endif %}">
+                    <i data-lucide="help-circle" class="w-4 h-4 text-sky-400"></i>
+                    <span>FAQ</span>
+                </a>
+
+                <a href="/settings" class="flex items-center gap-3 px-3 py-2.5 rounded-xl transition-all {% if '/settings' in request.url.path %}bg-white/10 text-white font-semibold{% else %}text-slate-400 hover:text-slate-200 hover:bg-white/5{% endif %}">
+                    <i data-lucide="settings" class="w-4 h-4 text-slate-400"></i>
+                    <span>Settings</span>
+                </a>
+            </nav>
+        </div>
+
+        <div class="p-3.5 border-t border-white/5">
+            <div class="flex items-center justify-between px-3 py-2 bg-slate-900/60 rounded-xl border border-white/5">
+                <div class="flex items-center gap-2.5 overflow-hidden">
+                    {% if user and user.avatar_url %}
+                    <img src="{{ user.avatar_url }}" alt="{{ user.username }}" class="w-7 h-7 rounded-lg object-cover border border-white/10 shrink-0">
+                    {% else %}
+                    <div class="w-7 h-7 rounded-lg bg-indigo-500/20 text-indigo-300 flex items-center justify-center text-xs font-bold shrink-0">
+                        {{ user.username[0]|upper if user else 'A' }}
+                    </div>
+                    {% endif %}
+                    <div class="truncate">
+                        <p class="text-xs font-semibold text-slate-200 truncate">{{ user.username if user else 'User' }}</p>
+                    </div>
+                </div>
+                <a href="/logout" title="Log Out" class="text-slate-400 hover:text-rose-400 p-1 rounded-lg transition-colors">
+                    <i data-lucide="log-out" class="w-4 h-4"></i>
+                </a>
+            </div>
+        </div>
+    </aside>
+
+    <div class="flex-1 flex flex-col min-w-0">
+        <header class="h-16 px-6 bg-[#07090e]/80 backdrop-blur-md border-b border-white/5 flex items-center justify-between sticky top-0 z-30">
+            <div class="flex items-center gap-4">
+                <h2 class="text-base font-bold text-white tracking-tight">{% block page_title %}Dashboard{% endblock %}</h2>
+            </div>
+
+            <div class="flex items-center gap-3">
+                <a href="/faq" class="hidden sm:flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-white/5 hover:bg-white/10 text-slate-300 text-xs font-medium transition-all">
+                    <i data-lucide="help-circle" class="w-3.5 h-3.5 text-sky-400"></i>
+                    <span>FAQ</span>
+                </a>
+                <a href="/setup-guide" class="hidden sm:flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-indigo-500/10 hover:bg-indigo-500/20 text-indigo-400 text-xs font-medium transition-all">
+                    <i data-lucide="sparkles" class="w-3.5 h-3.5"></i>
+                    <span>Tutorial</span>
+                </a>
+            </div>
+        </header>
+
+        <main class="flex-1 p-6 max-w-6xl w-full mx-auto">
+            {% block content %}{% endblock %}
+        </main>
+
+        <footer class="p-6 max-w-6xl w-full mx-auto border-t border-white/5 flex flex-col sm:flex-row items-center justify-between gap-3 text-xs text-slate-500">
+            <div>
+                <span>FreeCord &bull; Open Source Discord Backup &amp; Migration</span>
+            </div>
+            <div class="flex items-center gap-4">
+                <span>Created by <strong class="text-slate-300">ZyreXDZ</strong></span>
+                <a href="https://github.com/zyrexdz/freecord" target="_blank" class="text-indigo-400 hover:text-indigo-300 flex items-center gap-1 transition-colors">
+                    <i data-lucide="github" class="w-3.5 h-3.5"></i>
+                    <span>GitHub</span>
+                </a>
+            </div>
+        </footer>
+    </div>
+
+    <script src="/static/js/dashboard.js"></script>
+    <script>
+        lucide.createIcons();
+    </script>
+    {% block extra_scripts %}{% endblock %}
+</body>
+</html>

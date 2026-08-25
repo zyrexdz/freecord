@@ -1,0 +1,172 @@
+<div id="help-modal-overlay" class="fixed inset-0 z-50 bg-black/60 backdrop-blur-md flex items-center justify-center p-4 hidden">
+    <div class="glass-panel w-full max-w-lg rounded-3xl p-6 sm:p-7 shadow-2xl border border-white/10 relative text-left animate-scale-in">
+        <div class="flex items-center justify-between border-b border-white/10 pb-4 mb-4">
+            <div class="flex items-center gap-3">
+                <div id="help-modal-icon-container" class="w-9 h-9 rounded-2xl bg-indigo-500/10 text-indigo-400 flex items-center justify-center border border-indigo-500/20">
+                    <i data-lucide="help-circle" class="w-5 h-5"></i>
+                </div>
+                <div>
+                    <h3 id="help-modal-title" class="font-bold text-sm text-white">Help Guide</h3>
+                    <p id="help-modal-subtitle" class="text-[11px] text-slate-400">Quick explanation</p>
+                </div>
+            </div>
+            <button onclick="closeHelpModal()" class="w-8 h-8 rounded-full bg-white/5 hover:bg-white/10 flex items-center justify-center text-slate-400 hover:text-white transition-colors">
+                <i data-lucide="x" class="w-4 h-4"></i>
+            </button>
+        </div>
+
+        <div id="help-modal-content" class="text-xs text-slate-300 space-y-3 max-h-[380px] overflow-y-auto pr-1">
+        </div>
+
+        <div class="pt-4 mt-4 border-t border-white/10 flex justify-end gap-2">
+            <button onclick="closeHelpModal()" class="px-4 py-2 rounded-2xl bg-white/10 hover:bg-white/15 text-white font-medium text-xs transition-colors">
+                Got it
+            </button>
+        </div>
+    </div>
+</div>
+
+<script>
+    const REDIRECT_URI_VAL = "{{ net_info.redirect_uri if net_info else 'http://localhost:8000/api/oauth/callback' }}";
+
+    const HELP_TOPICS = {
+        'token': {
+            title: 'Bot Token Guide',
+            subtitle: 'How to copy your Bot Token',
+            icon: 'key',
+            content: `
+                <p class="leading-relaxed">The <strong>Bot Token</strong> allows FreeCord to connect to Discord, manage roles, and take backups.</p>
+                <div class="p-3.5 rounded-2xl bg-slate-900/80 border border-white/5 space-y-2">
+                    <p class="font-semibold text-white">Instructions:</p>
+                    <ol class="list-decimal list-inside space-y-1.5 text-slate-300">
+                        <li>Open the <a href="https://discord.com/developers/applications" target="_blank" class="text-indigo-400 underline font-semibold">Discord Developer Portal</a>.</li>
+                        <li>Click your bot application and open the <strong>Bot</strong> tab on the left.</li>
+                        <li>Click <strong>Reset Token</strong>.</li>
+                        <li>Click <strong>Copy</strong> and paste it into FreeCord.</li>
+                    </ol>
+                </div>
+            `
+        },
+        'client_id': {
+            title: 'Client ID Guide',
+            subtitle: 'Application ID from Discord Portal',
+            icon: 'hash',
+            content: `
+                <p class="leading-relaxed">The <strong>Client ID</strong> is the unique number for your bot application.</p>
+                <div class="p-3.5 rounded-2xl bg-slate-900/80 border border-white/5 space-y-2">
+                    <p class="font-semibold text-white">Where to find it:</p>
+                    <ol class="list-decimal list-inside space-y-1.5 text-slate-300">
+                        <li>Open the <a href="https://discord.com/developers/applications" target="_blank" class="text-indigo-400 underline font-semibold">Discord Developer Portal</a>.</li>
+                        <li>Select your bot application.</li>
+                        <li>In <strong>General Information</strong>, click <strong>Copy</strong> next to Application ID.</li>
+                    </ol>
+                </div>
+            `
+        },
+        'client_secret': {
+            title: 'Client Secret Guide',
+            subtitle: 'OAuth2 secret for member token refresh',
+            icon: 'lock',
+            content: `
+                <p class="leading-relaxed">The <strong>Client Secret</strong> is used to refresh member access tokens so you can restore members anytime.</p>
+                <div class="rounded-xl bg-[#111214] border border-slate-700/80 p-3 my-2 space-y-2">
+                    <div class="flex items-center justify-between text-[10px] text-slate-400 font-bold border-b border-white/5 pb-1">
+                        <span>DISCORD DEVELOPER PORTAL</span>
+                        <span class="text-indigo-400">OAuth2 &rarr; General</span>
+                    </div>
+                    <div class="p-2 rounded-lg bg-[#1e1f22] flex items-center justify-between">
+                        <span class="font-mono text-slate-500 text-[10px]">••••••••••••••••••••••••</span>
+                        <span class="px-2 py-0.5 rounded bg-indigo-600 text-white font-bold text-[10px]">Reset Secret</span>
+                    </div>
+                </div>
+                <div class="p-3.5 rounded-2xl bg-slate-900/80 border border-white/5 space-y-2">
+                    <p class="font-semibold text-white">How to copy it:</p>
+                    <ol class="list-decimal list-inside space-y-1.5 text-slate-300">
+                        <li>Open the <a href="https://discord.com/developers/applications" target="_blank" class="text-indigo-400 underline font-semibold">Discord Developer Portal</a>.</li>
+                        <li>Click <strong>OAuth2 &rarr; General</strong> in the menu.</li>
+                        <li>Under <strong>Client Secret</strong>, click <strong>Reset Secret</strong>, then copy and paste it into FreeCord.</li>
+                    </ol>
+                </div>
+            `
+        },
+        'intents': {
+            title: 'Bot Gateway Intents',
+            subtitle: 'Permissions needed for members and backups',
+            icon: 'shield-alert',
+            content: `
+                <p class="leading-relaxed">Discord needs these toggles so the bot can view members and save channels.</p>
+                <div class="p-3.5 rounded-2xl bg-slate-900/80 border border-white/5 space-y-2.5">
+                    <p class="font-semibold text-white">Bot tab switches:</p>
+                    <ul class="space-y-2 text-slate-300">
+                        <li class="p-2 rounded-xl bg-slate-950/60 border border-white/5 flex items-start gap-2">
+                            <span class="px-1.5 py-0.5 rounded bg-emerald-500/20 text-emerald-400 font-bold text-[10px] shrink-0 mt-0.5">ON</span>
+                            <div>
+                                <strong class="text-white">Server Members Intent:</strong> Lets the bot assign verified roles and read members.
+                            </div>
+                        </li>
+                        <li class="p-2 rounded-xl bg-slate-950/60 border border-white/5 flex items-start gap-2">
+                            <span class="px-1.5 py-0.5 rounded bg-emerald-500/20 text-emerald-400 font-bold text-[10px] shrink-0 mt-0.5">ON</span>
+                            <div>
+                                <strong class="text-white">Message Content Intent:</strong> Lets the bot save channel messages during backups.
+                            </div>
+                        </li>
+                    </ul>
+                </div>
+                <p class="text-[11px] text-amber-300">Click Save Changes at the bottom of the Discord page.</p>
+            `
+        },
+        'redirect_uri': {
+            title: 'Redirect URL Guide',
+            subtitle: 'OAuth2 Callback URL',
+            icon: 'link',
+            content: `
+                <p class="leading-relaxed">The <strong>Redirect URL</strong> tells Discord where to return users after they click verify.</p>
+                <div class="rounded-xl bg-[#111214] border border-slate-700/80 p-3 my-2 space-y-2">
+                    <div class="flex items-center justify-between text-[10px] text-slate-400 font-bold border-b border-white/5 pb-1">
+                        <span>DISCORD DEVELOPER PORTAL</span>
+                        <span class="text-indigo-400">OAuth2 &rarr; Redirects</span>
+                    </div>
+                    <div class="p-2 rounded-lg bg-[#1e1f22] border border-emerald-500/60 flex items-center justify-between gap-1">
+                        <span class="font-mono text-emerald-400 text-[10px] truncate">${REDIRECT_URI_VAL}</span>
+                        <span class="px-1.5 py-0.5 rounded bg-emerald-500/20 text-emerald-300 font-bold text-[9px] shrink-0">Add Redirect</span>
+                    </div>
+                </div>
+                <div class="p-3.5 rounded-2xl bg-slate-900/80 border border-white/5 space-y-2">
+                    <p class="font-semibold text-white">Your Callback URL:</p>
+                    <div class="flex items-center gap-2">
+                        <input type="text" id="modal-redirect-input" readonly value="${REDIRECT_URI_VAL}" class="flex-1 px-3 py-2 bg-slate-950 border border-slate-700 rounded-xl font-mono text-[11px] text-emerald-400 focus:outline-none select-all">
+                        <button type="button" onclick="copyToClipboard('${REDIRECT_URI_VAL}', 'Redirect URL copied!')" class="px-3.5 py-2 bg-indigo-600 hover:bg-indigo-500 text-white rounded-xl text-xs font-semibold flex items-center gap-1.5 transition-all shadow-md">
+                            <i data-lucide="copy" class="w-3.5 h-3.5"></i>
+                            <span>Copy</span>
+                        </button>
+                    </div>
+                </div>
+                <div class="p-3.5 rounded-2xl bg-slate-900/80 border border-white/5 space-y-2">
+                    <p class="font-semibold text-white">How to add it in Discord:</p>
+                    <ol class="list-decimal list-inside space-y-1.5 text-slate-300">
+                        <li>Open the <a href="https://discord.com/developers/applications" target="_blank" class="text-indigo-400 underline font-semibold">Discord Developer Portal</a>.</li>
+                        <li>Click <strong>OAuth2 &rarr; General</strong> on the left.</li>
+                        <li>Under <strong>Redirects</strong>, click <strong>Add Redirect</strong>, paste your copied link, and click <strong>Save Changes</strong>.</li>
+                    </ol>
+                </div>
+            `
+        }
+    };
+
+    function openHelpModal(topic) {
+        const data = HELP_TOPICS[topic];
+        if (!data) return;
+
+        document.getElementById('help-modal-title').textContent = data.title;
+        document.getElementById('help-modal-subtitle').textContent = data.subtitle;
+        document.getElementById('help-modal-content').innerHTML = data.content;
+        
+        const overlay = document.getElementById('help-modal-overlay');
+        overlay.classList.remove('hidden');
+        if (window.lucide) lucide.createIcons();
+    }
+
+    function closeHelpModal() {
+        document.getElementById('help-modal-overlay').classList.add('hidden');
+    }
+</script>
